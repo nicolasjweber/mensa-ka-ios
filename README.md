@@ -78,7 +78,8 @@ mensa-ka-ios/
 │   ├── storage/                    # Preferences, favorites & client ID storage
 │   └── utils/                      # Date, formatting, responsive layout, and meal helpers
 ├── scripts/
-│   └── frame-screenshot.mjs        # Embeds a real iOS Simulator screenshot into an iPhone bezel
+│   ├── frame-screenshot.mjs        # Composites a screenshot into the iPhone 18 Pro Max bezel
+│   └── iphone-18-pro-max-frame.png # Transparent iPhone 18 Pro Max bezel overlay template
 ├── store/
 │   └── MensaContext.tsx            # App state, preferences, localization, favorites & queries
 ├── types/
