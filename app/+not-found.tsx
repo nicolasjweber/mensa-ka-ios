@@ -1,17 +1,19 @@
 import { Link, Stack } from 'expo-router';
-import { StyleSheet } from 'react-native';
+import React from 'react';
+import { StyleSheet, Text, View } from 'react-native';
 
-import { Text, View } from '@/components/Themed';
+import { useMensa } from '@/store/MensaContext';
 
 export default function NotFoundScreen() {
+  const { palette, t } = useMensa();
+
   return (
     <>
-      <Stack.Screen options={{ title: 'Oops!' }} />
-      <View style={styles.container}>
-        <Text style={styles.title}>This screen doesn't exist.</Text>
-
-        <Link href="/" style={styles.link}>
-          <Text style={styles.linkText}>Go to home screen!</Text>
+      <Stack.Screen options={{ title: t.notFound.title }} />
+      <View style={[styles.container, { backgroundColor: palette.canvas }]}>
+        <Text style={[styles.title, { color: palette.text }]}>{t.notFound.message}</Text>
+        <Link href="/(tabs)/(menu)/index" style={styles.link}>
+          <Text style={[styles.linkText, { color: palette.brand }]}>{t.notFound.cta}</Text>
         </Link>
       </View>
     </>
@@ -26,15 +28,15 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   title: {
-    fontSize: 20,
-    fontWeight: 'bold',
+    fontSize: 18,
+    fontWeight: '700',
   },
   link: {
-    marginTop: 15,
-    paddingVertical: 15,
+    marginTop: 16,
+    paddingVertical: 10,
   },
   linkText: {
-    fontSize: 14,
-    color: '#2e78b7',
+    fontSize: 15,
+    fontWeight: '700',
   },
 });

@@ -1,0 +1,127 @@
+name: Build Unsigned iOS IPA
+
+on:
+  workflow_dispatch:
+    inputs:
+      configuration:
+        description: "Xcode build configuration"
+        required: true
+        default: "Release"
+        type: choice
+        options:
+          - Release
+          - Debug
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - "**.md"
+      - "LICENSE"
+      - ".gitignore"
+      - ".github/workflows/update-screenshot.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-ios-ipa-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-ios:
+    name: Build Unsigned iOS IPA (${{ inputs.configuration || 'Release' }})
+    runs-on: xcode-27
+    timeout-minutes: 45
+
+    env:
+      EXPO_NO_TELEMETRY: "1"
+      CONFIGURATION: ${{ inputs.configuration || 'Release' }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: TypeScript typecheck
+        run: npx tsc --noEmit
+
+      - name: Expo Prebuild (iOS)
+        run: npx expo prebuild --platform ios --clean --no-install
+
+      - name: Cache CocoaPods
+        uses: actions/cache@v5
+        id: pods-cache
+        with:
+          path: |
+            ios/Pods
+            ~/Library/Caches/CocoaPods
+          key: ${{ runner.os }}-xcode27-pods-${{ hashFiles('package-lock.json', 'app.json') }}
+          restore-keys: |
+            ${{ runner.os }}-xcode27-pods-
+
+      - name: Install CocoaPods
+        working-directory: ios
+        run: |
+          if [ "${{ steps.pods-cache.outputs.cache-hit }}" = "true" ]; then
+            pod install
+          else
+            pod install --repo-update
+          fi
+
+      - name: Build unsigned iOS .app
+        run: |
+          set -eo pipefail
+          xcodebuild -version
+          WORKSPACE=$(find ios -maxdepth 1 -name "*.xcworkspace" | head -n 1)
+          PROJECT=$(find ios -maxdepth 1 -name "*.xcodeproj" | head -n 1)
+          if [ -z "$WORKSPACE" ] || [ -z "$PROJECT" ]; then
+            echo "Error: Could not find generated iOS workspace or project"
+            exit 1
+          fi
+          SCHEME=$(xcodebuild -list -project "$PROJECT" -json | python3 -c "import sys, json; data = json.load(sys.stdin); print(data['project']['schemes'][0])")
+          echo "Using workspace: $WORKSPACE | scheme: $SCHEME | configuration: $CONFIGURATION"
+          xcodebuild \
+            -workspace "$WORKSPACE" \
+            -scheme "$SCHEME" \
+            -configuration "$CONFIGURATION" \
+            -sdk iphoneos \
+            -destination "generic/platform=iOS" \
+            -derivedDataPath ios/build \
+            -hideShellScriptEnvironment \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGN_IDENTITY="" \
+            ONLY_ACTIVE_ARCH=NO \
+            build
+
+      - name: Package Payload into unsigned .ipa
+        run: |
+          set -eo pipefail
+          APP_PATH=$(find "ios/build/Build/Products/${CONFIGURATION}-iphoneos" -maxdepth 1 -name "*.app" | head -n 1)
+          if [ -z "$APP_PATH" ]; then
+            echo "Error: Could not find built .app bundle"
+            exit 1
+          fi
+          echo "Packaging: $APP_PATH"
+          rm -rf build-ipa MensaKA-unsigned.ipa
+          mkdir -p build-ipa/Payload
+          cp -R "$APP_PATH" build-ipa/Payload/
+          cd build-ipa
+          zip -q -r -y ../MensaKA-unsigned.ipa Payload
+          ls -lh ../MensaKA-unsigned.ipa
+
+      - name: Upload unsigned .ipa artifact
+        uses: actions/upload-artifact@v5
+        with:
+          name: MensaKA-unsigned-${{ inputs.configuration || 'Release' }}-ipa
+          path: MensaKA-unsigned.ipa
+          retention-days: 14
+          if-no-files-found: error

@@ -1,6 +1,6 @@
 # Learn more https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
 
-# dependencies
+# Dependencies
 node_modules/
 
 # Expo
@@ -9,33 +9,72 @@ dist/
 web-build/
 expo-env.d.ts
 
-# Native
-.kotlin/
+# Generated native folders (Expo Prebuild / CNG)
+/ios
+/android
+
+# iOS / Xcode / IPA build artifacts
+*.ipa
+*.app
+*.dSYM.zip
+*.dSYM
+*.xcarchive
+*.xcuserstate
+DerivedData/
+xcuserdata/
+/build/
+build-ipa/
+raw-simulator.png
+
+# Signing credentials & keys
 *.orig.*
 *.jks
 *.p8
 *.p12
 *.key
 *.mobileprovision
+*.pem
 
-# Metro
+# Metro, TypeScript & test/lint caches
 .metro-health-check*
+.cache/
+.eslintcache
+.turbo/
+coverage/
+*.tsbuildinfo
 
-# debug
+# Logs
+*.log
 npm-debug.*
 yarn-debug.*
 yarn-error.*
+pnpm-debug.*
 
-# macOS
+# Local environment files
+.env
+.env.*
+!.env.example
+
+# Native temp directories
+.kotlin/
+
+# Editors, IDEs & local AI tooling
+.claude/
+.vscode/
+.idea/
+.agent/
+.gemini/
+AGENTS.md
+*.swp
+*.swo
+*~
+
+# OS metadata (macOS & Windows)
 .DS_Store
-*.pem
-
-# local env files
-.env*.local
-
-# typescript
-*.tsbuildinfo
-
-# generated native folders
-/ios
-/android
+.AppleDouble
+.LSOverride
+._*
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+desktop.ini

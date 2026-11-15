@@ -1,70 +1,52 @@
-import { SymbolView } from 'expo-symbols';
-import { Link, Tabs } from 'expo-router';
-import { Platform, Pressable } from 'react-native';
+import * as Haptics from 'expo-haptics';
+import { NativeTabs } from 'expo-router/native-tabs';
+import React from 'react';
+import { Platform } from 'react-native';
 
-import Colors from '@/constants/Colors';
-import { useColorScheme } from '@/components/useColorScheme';
-import { useClientOnlyValue } from '@/components/useClientOnlyValue';
+import { IS_IPAD } from '@/lib/utils/layout';
+import { useMensa } from '@/store/MensaContext';
 
-export default function TabLayout() {
-  const colorScheme = useColorScheme();
+function onTabHaptic() {
+  if (Platform.OS === 'ios') {
+    void Haptics.selectionAsync().catch(() => {});
+  }
+}
+
+export default function TabsLayout() {
+  const { palette, t } = useMensa();
 
   return (
-    <Tabs
-      screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme].tint,
-        // Disable the static render of the header on web
-        // to prevent a hydration error in React Navigation v6.
-        headerShown: useClientOnlyValue(false, true),
-      }}>
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: 'Tab One',
-          tabBarIcon: ({ color }) => (
-            <SymbolView
-              name={{
-                ios: 'chevron.left.forwardslash.chevron.right',
-                android: 'code',
-                web: 'code',
-              }}
-              tintColor={color}
-              size={28}
-            />
-          ),
-          headerRight: () => (
-            <Link href="/modal" asChild>
-              <Pressable style={{ marginRight: 15 }}>
-                {({ pressed }) => (
-                  <SymbolView
-                    name={{ ios: 'info.circle', android: 'info', web: 'info' }}
-                    size={25}
-                    tintColor={Colors[colorScheme].text}
-                    style={{ opacity: pressed ? 0.5 : 1 }}
-                  />
-                )}
-              </Pressable>
-            </Link>
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="two"
-        options={{
-          title: 'Tab Two',
-          tabBarIcon: ({ color }) => (
-            <SymbolView
-              name={{
-                ios: 'chevron.left.forwardslash.chevron.right',
-                android: 'code',
-                web: 'code',
-              }}
-              tintColor={color}
-              size={28}
-            />
-          ),
-        }}
-      />
-    </Tabs>
+    <NativeTabs sidebarAdaptable minimizeBehavior="onScrollDown" tintColor={palette.brand}>
+      <NativeTabs.Trigger name="(menu)" listeners={{ tabPress: onTabHaptic }}>
+        <NativeTabs.Trigger.Label>{t.tabs.menu}</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon sf="fork.knife" md="restaurant" />
+      </NativeTabs.Trigger>
+
+      <NativeTabs.Trigger name="favorites" listeners={{ tabPress: onTabHaptic }}>
+        <NativeTabs.Trigger.Label>{t.tabs.favorites}</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon
+          sf={{ default: 'heart', selected: 'heart.fill' }}
+          md="favorite"
+        />
+      </NativeTabs.Trigger>
+
+      <NativeTabs.Trigger name="settings" listeners={{ tabPress: onTabHaptic }}>
+        <NativeTabs.Trigger.Label>{t.tabs.settings}</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon
+          sf={{ default: 'gearshape', selected: 'gearshape.fill' }}
+          md="settings"
+        />
+      </NativeTabs.Trigger>
+
+      <NativeTabs.Trigger
+        name="search"
+        role="search"
+        hidden={IS_IPAD}
+        listeners={{ tabPress: onTabHaptic }}
+      >
+        <NativeTabs.Trigger.Label>{t.tabs.search}</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon sf="magnifyingglass" md="search" />
+      </NativeTabs.Trigger>
+    </NativeTabs>
   );
 }

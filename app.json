@@ -1,37 +1,53 @@
 {
   "expo": {
-    "name": "mensa-ka-ios",
-    "slug": "mensa-ka-ios",
+    "name": "Mensa KA",
+    "slug": "mensa-ka",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "mensakaios",
+    "scheme": "mensaka",
     "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
-    },
-    "android": {
-      "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/images/android-icon-foreground.png",
-        "backgroundImage": "./assets/images/android-icon-background.png",
-        "monochromeImage": "./assets/images/android-icon-monochrome.png"
-      },
-      "predictiveBackGestureEnabled": false
-    },
-    "web": {
-      "bundler": "metro",
-      "output": "server",
-      "favicon": "./assets/images/favicon.png"
+      "supportsTablet": true,
+      "bundleIdentifier": "de.mensaka.mobile",
+      "buildNumber": "1",
+      "infoPlist": {
+        "CFBundleDisplayName": "Mensa KA",
+        "ITSAppUsesNonExemptEncryption": false,
+        "UISupportedInterfaceOrientations~ipad": [
+          "UIInterfaceOrientationPortrait",
+          "UIInterfaceOrientationPortraitUpsideDown",
+          "UIInterfaceOrientationLandscapeLeft",
+          "UIInterfaceOrientationLandscapeRight"
+        ]
+      }
     },
     "plugins": [
       "expo-router",
+      "expo-dev-client",
+      "expo-secure-store",
+      "expo-image",
+      "expo-web-browser",
       [
         "expo-splash-screen",
         {
           "image": "./assets/images/splash-icon.png",
+          "imageWidth": 180,
           "resizeMode": "contain",
-          "backgroundColor": "#ffffff"
+          "backgroundColor": "#f4f7f6",
+          "dark": {
+            "image": "./assets/images/splash-icon.png",
+            "backgroundColor": "#0a1210"
+          }
+        }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "deploymentTarget": "16.4"
+          }
         }
       ]
     ],

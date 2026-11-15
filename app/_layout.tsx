@@ -1,56 +1,108 @@
-import { useFonts } from 'expo-font';
+import { useIsRestoring } from '@tanstack/react-query';
+import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
 import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import { useEffect } from 'react';
+import { StatusBar } from 'expo-status-bar';
+import React, { useEffect } from 'react';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import 'react-native-reanimated';
 
-import { useColorScheme } from '@/components/useColorScheme';
+import { asyncStoragePersister, queryClient } from '@/lib/query/queryClient';
+import { MensaProvider, useMensa } from '@/store/MensaContext';
 
-export {
-  // Catch any errors thrown by the Layout component.
-  ErrorBoundary,
-} from 'expo-router';
+export { ErrorBoundary } from 'expo-router';
 
 export const unstable_settings = {
-  // Ensure that reloading on `/modal` keeps a back button present.
   anchor: '(tabs)',
 };
 
-// Prevent the splash screen from auto-hiding before asset loading is complete.
-SplashScreen.preventAutoHideAsync();
+void SplashScreen.preventAutoHideAsync();
 
-export default function RootLayout() {
-  const [loaded, error] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
-  });
-
-  // Expo Router uses Error Boundaries to catch errors in the navigation tree.
-  useEffect(() => {
-    if (error) throw error;
-  }, [error]);
+function RootNavigator() {
+  const { effectiveScheme, isHydrated, palette, t } = useMensa();
+  const isRestoring = useIsRestoring();
+  const isReady = isHydrated && !isRestoring;
 
   useEffect(() => {
-    if (loaded) {
-      SplashScreen.hideAsync();
+    if (isReady) {
+      void SplashScreen.hideAsync();
     }
-  }, [loaded]);
+  }, [isReady]);
 
-  if (!loaded) {
+  if (!isReady) {
     return null;
   }
 
-  return <RootLayoutNav />;
-}
-
-function RootLayoutNav() {
-  const colorScheme = useColorScheme();
+  const navigationTheme =
+    effectiveScheme === 'dark'
+      ? {
+          ...DarkTheme,
+          colors: {
+            ...DarkTheme.colors,
+            primary: palette.brand,
+            background: palette.canvas,
+            card: palette.surface,
+            text: palette.text,
+            border: palette.border,
+          },
+        }
+      : {
+          ...DefaultTheme,
+          colors: {
+            ...DefaultTheme.colors,
+            primary: palette.brand,
+            background: palette.canvas,
+            card: palette.surface,
+            text: palette.text,
+            border: palette.border,
+          },
+        };
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+    <ThemeProvider value={navigationTheme}>
+      <StatusBar style={effectiveScheme === 'dark' ? 'light' : 'dark'} />
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
+        <Stack.Screen
+          name="calendar-modal"
+          options={{
+            presentation: 'formSheet',
+            sheetAllowedDetents: [0.72, 0.92],
+            sheetGrabberVisible: true,
+            title: t.calendar.title,
+          }}
+        />
+        <Stack.Screen
+          name="meal/[id]"
+          options={{
+            title: t.mealDetail.fallbackTitle,
+            headerBackButtonDisplayMode: 'minimal',
+          }}
+        />
+        <Stack.Screen
+          name="lightbox"
+          options={{
+            presentation: 'transparentModal',
+            headerShown: false,
+            animation: 'fade',
+          }}
+        />
       </Stack>
     </ThemeProvider>
+  );
+}
+
+export default function RootLayout() {
+  return (
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <PersistQueryClientProvider
+        client={queryClient}
+        persistOptions={{ persister: asyncStoragePersister }}
+      >
+        <MensaProvider>
+          <RootNavigator />
+        </MensaProvider>
+      </PersistQueryClientProvider>
+    </GestureHandlerRootView>
   );
 }
