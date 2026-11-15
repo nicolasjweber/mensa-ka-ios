@@ -61,7 +61,7 @@ function RootNavigator() {
   return (
     <ThemeProvider value={navigationTheme}>
       <StatusBar style={effectiveScheme === 'dark' ? 'light' : 'dark'} />
-      <Stack>
+      <Stack screenOptions={{ statusBarStyle: effectiveScheme === 'dark' ? 'light' : 'dark' }}>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen
           name="calendar-modal"
@@ -85,6 +85,7 @@ function RootNavigator() {
             presentation: 'transparentModal',
             headerShown: false,
             animation: 'fade',
+            statusBarStyle: 'light',
           }}
         />
       </Stack>

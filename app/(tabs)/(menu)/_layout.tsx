@@ -3,10 +3,13 @@ import React from 'react';
 import { Platform } from 'react-native';
 
 import { IS_IPAD } from '@/lib/utils/layout';
+import { useMensa } from '@/store/MensaContext';
 
 export default function MenuTabStackLayout() {
+  const { statusBarStyle } = useMensa();
+
   return (
-    <Stack>
+    <Stack screenOptions={{ statusBarStyle }}>
       <Stack.Screen
         name="index"
         options={{

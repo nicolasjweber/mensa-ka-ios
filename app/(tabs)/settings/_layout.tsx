@@ -6,10 +6,10 @@ import { IS_IPAD } from '@/lib/utils/layout';
 import { useMensa } from '@/store/MensaContext';
 
 export default function SettingsTabStackLayout() {
-  const { t } = useMensa();
+  const { statusBarStyle, t } = useMensa();
 
   return (
-    <Stack>
+    <Stack screenOptions={{ statusBarStyle }}>
       <Stack.Screen
         name="index"
         options={{

@@ -1,7 +1,7 @@
 import { GlassContainer } from 'expo-glass-effect';
 import * as Haptics from 'expo-haptics';
 import { Image } from 'expo-image';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { SymbolView } from 'expo-symbols';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
@@ -339,6 +339,13 @@ export default function LightboxScreen() {
   return (
     <Animated.View style={[styles.container, backdropStyle]}>
       <StatusBar style="light" hidden={!chromeVisible} animated />
+      <Stack.Screen
+        options={{
+          statusBarStyle: 'light',
+          statusBarHidden: !chromeVisible,
+          statusBarAnimation: 'fade',
+        }}
+      />
 
       <Animated.View
         pointerEvents={chromeVisible ? 'box-none' : 'none'}

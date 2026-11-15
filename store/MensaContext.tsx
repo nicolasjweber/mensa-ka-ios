@@ -72,6 +72,7 @@ interface MensaContextValue {
   setDetailSectionOrder: (order: MealDetailSectionKey[]) => void;
   resetDetailLayout: () => void;
   effectiveScheme: 'light' | 'dark';
+  statusBarStyle: 'light' | 'dark';
   palette: ThemePalette;
   activeFilters: ActiveFilters;
   toggleFilter: (key: keyof ActiveFilters) => void;
@@ -401,6 +402,8 @@ export function MensaProvider({ children }: { children: React.ReactNode }) {
     return systemScheme === 'dark' ? 'dark' : 'light';
   }, [prefs.themeMode, systemScheme]);
 
+  const statusBarStyle: 'light' | 'dark' = effectiveScheme === 'dark' ? 'light' : 'dark';
+
   const effectiveLanguage: AppLanguage = useMemo(() => {
     if (prefs.languagePreference === 'en' || prefs.languagePreference === 'de') {
       return prefs.languagePreference;
@@ -442,6 +445,7 @@ export function MensaProvider({ children }: { children: React.ReactNode }) {
       setDetailSectionOrder,
       resetDetailLayout,
       effectiveScheme,
+      statusBarStyle,
       palette,
       activeFilters,
       toggleFilter,
@@ -494,6 +498,7 @@ export function MensaProvider({ children }: { children: React.ReactNode }) {
       setSkipWeekends,
       setThemeMode,
       shiftDate,
+      statusBarStyle,
       t,
       todayWeekday,
       toggleFavorite,
