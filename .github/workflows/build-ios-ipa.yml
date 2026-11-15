@@ -12,13 +12,6 @@ on:
           - Release
           - Debug
   push:
-    branches:
-      - main
-    paths-ignore:
-      - "**.md"
-      - "LICENSE"
-      - ".gitignore"
-      - "assets/screenshot-iphone.png"
     tags:
       - "v*"
 

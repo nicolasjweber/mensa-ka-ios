@@ -127,7 +127,7 @@ mensa-ka-ios/
 
 The repository includes [`.github/workflows/build-ios-ipa.yml`](.github/workflows/build-ios-ipa.yml) (`Build Unsigned iOS IPA`), running on GitHub Actions (`xcode-27` on Apple Silicon):
 
-1. Triggers automatically on pushes to `main` and version tags (`v*`), or manually via **Actions → Build Unsigned iOS IPA → Run workflow**.
+1. Triggers automatically on version tags (`v*`), or manually via **Actions → Build Unsigned iOS IPA → Run workflow**.
 2. Choose the Xcode build configuration:
    - **`Release`** *(default)*: Standalone app with an embedded offline JavaScript bundle.
    - **`Debug`**: Development client build with `expo-dev-client` for connecting to a local Metro server over Wi-Fi.
