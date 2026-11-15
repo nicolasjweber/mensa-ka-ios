@@ -1,4 +1,4 @@
-name: Build Unsigned iOS IPA
+name: iOS Build, Release & Screenshot
 
 on:
   workflow_dispatch:
@@ -11,6 +11,11 @@ on:
         options:
           - Release
           - Debug
+      update_screenshot:
+        description: "Capture simulator screenshot (Release on main)"
+        required: false
+        default: true
+        type: boolean
   push:
     branches:
       - main
@@ -18,24 +23,27 @@ on:
       - "**.md"
       - "LICENSE"
       - ".gitignore"
-      - ".github/workflows/update-screenshot.yml"
+      - "assets/screenshot-iphone.png"
+    tags:
+      - "v*"
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
-  group: build-ios-ipa-${{ github.ref }}
-  cancel-in-progress: true
+  group: ios-build-${{ github.ref }}
+  cancel-in-progress: ${{ !startsWith(github.ref, 'refs/tags/') }}
 
 jobs:
-  build-ios:
-    name: Build Unsigned iOS IPA (${{ inputs.configuration || 'Release' }})
+  build-and-release:
+    name: Build iOS (${{ inputs.configuration || 'Release' }})
     runs-on: xcode-27
-    timeout-minutes: 45
+    timeout-minutes: 55
 
     env:
       EXPO_NO_TELEMETRY: "1"
       CONFIGURATION: ${{ inputs.configuration || 'Release' }}
+      CAPTURE_SCREENSHOT: ${{ (inputs.configuration || 'Release') == 'Release' && !startsWith(github.ref, 'refs/tags/') && (github.event_name != 'workflow_dispatch' || inputs.update_screenshot) }}
 
     steps:
       - name: Checkout repository
@@ -76,7 +84,7 @@ jobs:
             pod install --repo-update
           fi
 
-      - name: Build unsigned iOS .app
+      - name: Resolve Xcode workspace and scheme
         run: |
           set -eo pipefail
           xcodebuild -version
@@ -87,10 +95,18 @@ jobs:
             exit 1
           fi
           SCHEME=$(xcodebuild -list -project "$PROJECT" -json | python3 -c "import sys, json; data = json.load(sys.stdin); print(data['project']['schemes'][0])")
-          echo "Using workspace: $WORKSPACE | scheme: $SCHEME | configuration: $CONFIGURATION"
+          echo "Resolved workspace: $WORKSPACE | project: $PROJECT | scheme: $SCHEME"
+          {
+            echo "XCODE_WORKSPACE=$WORKSPACE"
+            echo "XCODE_SCHEME=$SCHEME"
+          } >> "$GITHUB_ENV"
+
+      - name: Build unsigned iOS .app
+        run: |
+          set -eo pipefail
           xcodebuild \
-            -workspace "$WORKSPACE" \
-            -scheme "$SCHEME" \
+            -workspace "$XCODE_WORKSPACE" \
+            -scheme "$XCODE_SCHEME" \
             -configuration "$CONFIGURATION" \
             -sdk iphoneos \
             -destination "generic/platform=iOS" \
@@ -125,3 +141,134 @@ jobs:
           path: MensaKA-unsigned.ipa
           retention-days: 14
           if-no-files-found: error
+
+      - name: Publish GitHub Release for version tag
+        if: startsWith(github.ref, 'refs/tags/v') && env.CONFIGURATION == 'Release'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -eo pipefail
+          TAG="${GITHUB_REF_NAME}"
+          PRERELEASE_FLAG=""
+          if [[ "$TAG" == *-* ]]; then
+            PRERELEASE_FLAG="--prerelease"
+          fi
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" MensaKA-unsigned.ipa --clobber
+          else
+            gh release create "$TAG" MensaKA-unsigned.ipa \
+              --title "$TAG" \
+              --generate-notes \
+              $PRERELEASE_FLAG
+          fi
+
+      - name: Boot iPhone Simulator & configure status bar
+        if: env.CAPTURE_SCREENSHOT == 'true'
+        run: |
+          set -eo pipefail
+          SIM_UDID=$(python3 - <<'EOF'
+          import json, subprocess, sys
+          raw = subprocess.check_output(["xcrun", "simctl", "list", "devices", "available", "-j"])
+          devices_by_runtime = json.loads(raw).get("devices", {})
+          ios_runtimes = sorted(
+              [k for k in devices_by_runtime if "iOS" in k],
+              reverse=True,
+          )
+          preferred = [
+              "iPhone 18 Pro Max",
+              "iPhone 18 Pro",
+              "iPhone 17 Pro Max",
+              "iPhone 17 Pro",
+              "iPhone 16 Pro",
+              "iPhone 16",
+          ]
+          for rt in ios_runtimes:
+              devs = [
+                  d for d in devices_by_runtime[rt]
+                  if d.get("isAvailable") and "iPhone" in d.get("name", "")
+              ]
+              for name in preferred:
+                  for d in devs:
+                      if d["name"] == name:
+                          print(d["udid"])
+                          sys.exit(0)
+              if devs:
+                  print(devs[0]["udid"])
+                  sys.exit(0)
+          sys.exit("No available iPhone simulator found")
+          EOF
+          )
+          echo "SIM_UDID=$SIM_UDID" >> "$GITHUB_ENV"
+          echo "Using simulator: $SIM_UDID"
+          xcrun simctl boot "$SIM_UDID" || true
+          xcrun simctl bootstatus "$SIM_UDID" -b
+          xcrun simctl status_bar "$SIM_UDID" override \
+            --time "9:41" \
+            --dataNetwork wifi \
+            --wifiMode active \
+            --wifiBars 3 \
+            --cellularMode active \
+            --cellularBars 4 \
+            --batteryState charged \
+            --batteryLevel 100
+
+      - name: Build Release app for iOS Simulator
+        if: env.CAPTURE_SCREENSHOT == 'true'
+        run: |
+          set -eo pipefail
+          xcodebuild \
+            -workspace "$XCODE_WORKSPACE" \
+            -scheme "$XCODE_SCHEME" \
+            -configuration Release \
+            -sdk iphonesimulator \
+            -destination "id=$SIM_UDID" \
+            -derivedDataPath ios/build \
+            -hideShellScriptEnvironment \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            ONLY_ACTIVE_ARCH=YES \
+            build
+
+      - name: Launch app and capture raw simulator screenshot
+        if: env.CAPTURE_SCREENSHOT == 'true'
+        run: |
+          set -eo pipefail
+          APP_PATH=$(find "ios/build/Build/Products/Release-iphonesimulator" -maxdepth 1 -name "*.app" | head -n 1)
+          if [ -z "$APP_PATH" ]; then
+            echo "Error: Could not find built simulator .app bundle"
+            exit 1
+          fi
+          BUNDLE_ID=$(/usr/libexec/PlistBuddy -c "Print :CFBundleIdentifier" "$APP_PATH/Info.plist")
+          echo "Installing: $APP_PATH ($BUNDLE_ID)"
+          xcrun simctl install "$SIM_UDID" "$APP_PATH"
+          xcrun simctl launch "$SIM_UDID" "$BUNDLE_ID"
+          sleep 12
+          xcrun simctl io "$SIM_UDID" screenshot raw-simulator.png
+          ls -lh raw-simulator.png
+
+      - name: Frame screenshot inside iPhone bezel
+        if: env.CAPTURE_SCREENSHOT == 'true'
+        run: node scripts/frame-screenshot.mjs raw-simulator.png assets/screenshot-iphone.png
+
+      - name: Upload framed screenshot artifact
+        if: env.CAPTURE_SCREENSHOT == 'true'
+        uses: actions/upload-artifact@v5
+        with:
+          name: mensa-ka-iphone-screenshot
+          path: |
+            raw-simulator.png
+            assets/screenshot-iphone.png
+          retention-days: 14
+
+      - name: Commit updated screenshot
+        if: env.CAPTURE_SCREENSHOT == 'true' && github.ref == 'refs/heads/main'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git diff --quiet assets/screenshot-iphone.png && [ -z "$(git ls-files --others --exclude-standard assets/screenshot-iphone.png)" ]; then
+            echo "Screenshot unchanged; skipping commit."
+            exit 0
+          fi
+          git add assets/screenshot-iphone.png
+          git commit -m "chore: update iPhone app screenshot [skip ci]"
+          git push

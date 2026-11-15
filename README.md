@@ -84,8 +84,7 @@ mensa-ka-ios/
 ├── types/
 │   └── mensa.ts                    # TypeScript models
 └── .github/workflows/
-    ├── build-ios-ipa.yml           # CI workflow to build unsigned iOS .ipa artifacts
-    └── update-screenshot.yml       # CI workflow to capture & frame a real iOS Simulator screenshot
+    └── build-ios-ipa.yml           # Unified CI workflow: unsigned .ipa build, v* tag releases & simulator screenshot
 ```
 
 ---
@@ -124,19 +123,17 @@ mensa-ka-ios/
 
 ---
 
-## Building the Unsigned `.ipa` (CI)
+## Building, Releases & Screenshot (CI)
 
-The repository includes [`.github/workflows/build-ios-ipa.yml`](.github/workflows/build-ios-ipa.yml) (`Build Unsigned iOS IPA`), which runs on GitHub Actions (`xcode-27` on Apple Silicon):
+The repository includes a single unified workflow, [`.github/workflows/build-ios-ipa.yml`](.github/workflows/build-ios-ipa.yml) (`iOS Build, Release & Screenshot`), running on GitHub Actions (`xcode-27` on Apple Silicon):
 
-1. Triggers automatically on pushes to `main`, or manually via **Actions → Build Unsigned iOS IPA → Run workflow**.
+1. Triggers automatically on pushes to `main` and version tags (`v*`), or manually via **Actions → iOS Build, Release & Screenshot → Run workflow**.
 2. Choose the Xcode build configuration:
    - **`Release`** *(default)*: Standalone app with an embedded offline JavaScript bundle.
    - **`Debug`**: Development client build with `expo-dev-client` for connecting to a local Metro server over Wi-Fi.
-3. Uploads the `MensaKA-unsigned-<configuration>-ipa` artifact containing `MensaKA-unsigned.ipa` (see [Installation](#installation) above for sideloading options).
-
-### Updating the App Screenshot
-
-[`.github/workflows/update-screenshot.yml`](.github/workflows/update-screenshot.yml) automatically builds the `Release` simulator `.app` on macOS, boots an iPhone Simulator with a clean `9:41` status bar, captures a real screenshot (`xcrun simctl io ... screenshot`), frames it into a titanium iPhone bezel using [`scripts/frame-screenshot.mjs`](scripts/frame-screenshot.mjs), and commits the updated [`assets/screenshot-iphone.png`](assets/screenshot-iphone.png) back to `main`.
+3. Builds `MensaKA-unsigned.ipa` and uploads the `MensaKA-unsigned-<configuration>-ipa` artifact (see [Installation](#installation) above for sideloading options).
+4. **GitHub Releases (`v*` tags)**: When a version tag like `v1.0.0` is pushed, the workflow automatically creates or updates a GitHub Release with `MensaKA-unsigned.ipa` attached.
+5. **App Screenshot**: For `Release` builds on `main` (and manual runs with screenshot capture enabled), the same job reuses the prepared `ios/` workspace and CocoaPods cache to build the simulator `.app`, boots an iPhone Simulator with a `9:41` status bar, captures a screenshot (`xcrun simctl io ... screenshot`), frames it using [`scripts/frame-screenshot.mjs`](scripts/frame-screenshot.mjs), and commits [`assets/screenshot-iphone.png`](assets/screenshot-iphone.png) back to `main`.
 
 To frame a raw simulator screenshot manually:
 
