@@ -5,9 +5,11 @@ A native Swift and SwiftUI app for iOS and iPadOS to browse Karlsruhe university
 > **API Credit:** This app is powered by the GraphQL backend from **[kronos-et-al/MensaApp](https://github.com/kronos-et-al/MensaApp)** (`https://api.mensa-ka.de/`). Huge thanks to the MensaApp maintainers for building and operating such a clean, rich, and reliable API!
 
 <p align="center">
-  <img src="assets/screenshot-iphone.png" alt="Mensa KA running on iPhone" width="220" />
-  &nbsp;&nbsp;
-  <img src="assets/screenshot-ipad.png" alt="Mensa KA running on iPad Pro" width="565" />
+  <img src="assets/screenshot-iphone.png" alt="Mensa KA running on iPhone" width="360" />
+</p>
+
+<p align="center">
+  <img src="assets/screenshot-ipad.png" alt="Mensa KA running on iPad Pro" width="720" />
 </p>
 
 ---
