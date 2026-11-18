@@ -4,9 +4,9 @@ import UIKit
 #endif
 
 public enum Radii {
-    public static let sm: CGFloat = 9
-    public static let md: CGFloat = 14
-    public static let lg: CGFloat = 18
+    public static let sm: CGFloat = 10
+    public static let md: CGFloat = 16
+    public static let lg: CGFloat = 20
 }
 
 public enum Spacing {
@@ -60,7 +60,7 @@ public enum ThemePalette {
     public static let border = Color.dynamic(
         lightHex: 0x0F2622,
         darkHex: 0xE8F5F1,
-        lightAlpha: 0.11,
+        lightAlpha: 0.10,
         darkAlpha: 0.12
     )
 
@@ -119,41 +119,11 @@ public func isReduceTransparencyActive() -> Bool {
 }
 
 struct GlassPillModifier: ViewModifier {
-    @Environment(\.colorScheme) private var colorScheme
     let shape: GlassShapeKind
     let tone: GlassTone
 
     func body(content: Content) -> some View {
-        let reduceTransparency = isReduceTransparencyActive()
-
-        if #available(iOS 26.0, *), !reduceTransparency {
-            let tintColor: Color = switch tone {
-            case .active:
-                ThemePalette.brand.opacity(colorScheme == .dark ? 0.88 : 0.86)
-            case .accent:
-                ThemePalette.brand.opacity(colorScheme == .dark ? 0.22 : 0.14)
-            case .neutral:
-                colorScheme == .dark ? Color.white.opacity(0.14) : Color.white.opacity(0.75)
-            }
-
-            switch shape {
-            case .capsule:
-                content
-                    .contentShape(Capsule())
-                    .glassEffect(.regular.tint(tintColor).interactive(), in: Capsule())
-            case .circle:
-                content
-                    .contentShape(Circle())
-                    .glassEffect(.regular.tint(tintColor).interactive(), in: Circle())
-            case .roundedRectangle(let radius):
-                content
-                    .contentShape(RoundedRectangle(cornerRadius: radius))
-                    .glassEffect(
-                        .regular.tint(tintColor).interactive(),
-                        in: RoundedRectangle(cornerRadius: radius)
-                    )
-            }
-        } else {
+        if isReduceTransparencyActive() {
             let fillColor: Color = switch tone {
             case .active:
                 ThemePalette.brand
@@ -167,27 +137,46 @@ struct GlassPillModifier: ViewModifier {
             case .capsule:
                 content
                     .background(Capsule().fill(fillColor))
-                    .overlay(
-                        Capsule()
-                            .stroke(tone == .active ? Color.clear : ThemePalette.border, lineWidth: 1)
-                    )
+                    .overlay(Capsule().stroke(tone == .active ? Color.clear : ThemePalette.border, lineWidth: 1))
                     .contentShape(Capsule())
             case .circle:
                 content
                     .background(Circle().fill(fillColor))
-                    .overlay(
-                        Circle()
-                            .stroke(tone == .active ? Color.clear : ThemePalette.border, lineWidth: 1)
-                    )
+                    .overlay(Circle().stroke(tone == .active ? Color.clear : ThemePalette.border, lineWidth: 1))
                     .contentShape(Circle())
             case .roundedRectangle(let radius):
                 content
-                    .background(RoundedRectangle(cornerRadius: radius).fill(fillColor))
+                    .background(RoundedRectangle(cornerRadius: radius, style: .continuous).fill(fillColor))
                     .overlay(
-                        RoundedRectangle(cornerRadius: radius)
+                        RoundedRectangle(cornerRadius: radius, style: .continuous)
                             .stroke(tone == .active ? Color.clear : ThemePalette.border, lineWidth: 1)
                     )
-                    .contentShape(RoundedRectangle(cornerRadius: radius))
+                    .contentShape(RoundedRectangle(cornerRadius: radius, style: .continuous))
+            }
+        } else {
+            let glassStyle: Glass = switch tone {
+            case .active:
+                .regular.tint(ThemePalette.brand).interactive()
+            case .accent:
+                .regular.tint(ThemePalette.brand.opacity(0.24)).interactive()
+            case .neutral:
+                .regular.interactive()
+            }
+
+            switch shape {
+            case .capsule:
+                content
+                    .contentShape(Capsule())
+                    .glassEffect(glassStyle, in: Capsule())
+            case .circle:
+                content
+                    .contentShape(Circle())
+                    .glassEffect(glassStyle, in: Circle())
+            case .roundedRectangle(let radius):
+                let rect = RoundedRectangle(cornerRadius: radius, style: .continuous)
+                content
+                    .contentShape(rect)
+                    .glassEffect(glassStyle, in: rect)
             }
         }
     }
@@ -198,22 +187,20 @@ struct GlassSurfaceBackgroundModifier: ViewModifier {
     let isDarkOverlay: Bool
 
     func body(content: Content) -> some View {
-        let reduceTransparency = isReduceTransparencyActive()
-        if #available(iOS 26.0, *), !reduceTransparency {
+        let shape = RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+        if isReduceTransparencyActive() {
             content
-                .glassEffect(
-                    .regular.tint(isDarkOverlay ? Color(white: 0.1, opacity: 0.45) : .clear),
-                    in: RoundedRectangle(cornerRadius: cornerRadius)
+                .background(
+                    shape.fill(isDarkOverlay ? Color(red: 22/255, green: 28/255, blue: 26/255, opacity: 0.88) : ThemePalette.surface)
+                )
+                .overlay(
+                    shape.stroke(Color.white.opacity(isDarkOverlay ? 0.16 : 0.08), lineWidth: 1)
                 )
         } else {
             content
-                .background(
-                    RoundedRectangle(cornerRadius: cornerRadius)
-                        .fill(isDarkOverlay ? Color(red: 22/255, green: 28/255, blue: 26/255, opacity: 0.85) : ThemePalette.surface)
-                )
-                .overlay(
-                    RoundedRectangle(cornerRadius: cornerRadius)
-                        .stroke(Color.white.opacity(isDarkOverlay ? 0.16 : 0.08), lineWidth: 1)
+                .glassEffect(
+                    isDarkOverlay ? .regular.tint(Color.black.opacity(0.25)) : .regular,
+                    in: shape
                 )
         }
     }
@@ -239,12 +226,50 @@ struct AdaptiveGlassContainer<Content: View>: View {
     }
 
     var body: some View {
-        if #available(iOS 26.0, *), !isReduceTransparencyActive() {
-            GlassEffectContainer(spacing: spacing) {
-                content()
-            }
-        } else {
+        GlassEffectContainer(spacing: spacing) {
             content()
+        }
+    }
+}
+
+// MARK: - Transition Namespaces
+
+private struct LightboxNamespaceKey: EnvironmentKey {
+    static let defaultValue: Namespace.ID? = nil
+}
+
+private struct NavZoomNamespaceKey: EnvironmentKey {
+    static let defaultValue: Namespace.ID? = nil
+}
+
+extension EnvironmentValues {
+    var lightboxNamespace: Namespace.ID? {
+        get { self[LightboxNamespaceKey.self] }
+        set { self[LightboxNamespaceKey.self] = newValue }
+    }
+
+    var navZoomNamespace: Namespace.ID? {
+        get { self[NavZoomNamespaceKey.self] }
+        set { self[NavZoomNamespaceKey.self] = newValue }
+    }
+}
+
+extension View {
+    @ViewBuilder
+    func optionalMatchedTransitionSource<ID: Hashable>(id: ID, in namespace: Namespace.ID?) -> some View {
+        if let namespace {
+            self.matchedTransitionSource(id: id, in: namespace)
+        } else {
+            self
+        }
+    }
+
+    @ViewBuilder
+    func optionalZoomTransition<ID: Hashable>(sourceID: ID?, in namespace: Namespace.ID?) -> some View {
+        if let sourceID, let namespace {
+            self.navigationTransition(.zoom(sourceID: sourceID, in: namespace))
+        } else {
+            self
         }
     }
 }

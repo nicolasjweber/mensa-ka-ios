@@ -101,7 +101,8 @@ public struct MenuView: View {
                                             meal: meal,
                                             lineId: section.line.id,
                                             lineName: section.line.name,
-                                            canteenName: selectedCanteen?.name
+                                            canteenName: selectedCanteen?.name,
+                                            sourcePrefix: "menu"
                                         )
                                     }
                                 }
@@ -117,6 +118,7 @@ public struct MenuView: View {
             .frame(maxWidth: .infinity)
         }
         .background(ThemePalette.canvas.ignoresSafeArea())
+        .scrollEdgeEffectStyle(.soft, for: .all)
         .refreshable {
             await store.refreshPlan()
         }

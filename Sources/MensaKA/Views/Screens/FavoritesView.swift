@@ -70,7 +70,8 @@ public struct FavoritesView: View {
                                         lineId: item.lineId,
                                         lineName: item.lineName,
                                         canteenName: item.canteenName,
-                                        subtitle: item.subtitle
+                                        subtitle: item.subtitle,
+                                        sourcePrefix: "fav"
                                     )
                                 }
                             }
@@ -96,6 +97,7 @@ public struct FavoritesView: View {
             .frame(maxWidth: .infinity)
         }
         .background(ThemePalette.canvas.ignoresSafeArea())
+        .scrollEdgeEffectStyle(.soft, for: .all)
         .navigationTitle(s.favoritesTitle)
         .navigationBarTitleDisplayMode(isPad ? .inline : .large)
     }

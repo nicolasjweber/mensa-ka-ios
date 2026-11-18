@@ -2,25 +2,30 @@ import SwiftUI
 
 public struct MealCardView: View {
     @Environment(MensaStore.self) private var store
+    @Environment(\.lightboxNamespace) private var lightboxNamespace
+    @Environment(\.navZoomNamespace) private var navZoomNamespace
 
     public let meal: Meal
     public let lineId: String
     public var lineName: String?
     public var canteenName: String?
     public var subtitle: String?
+    public var sourcePrefix: String = "menu"
 
     public init(
         meal: Meal,
         lineId: String,
         lineName: String? = nil,
         canteenName: String? = nil,
-        subtitle: String? = nil
+        subtitle: String? = nil,
+        sourcePrefix: String = "menu"
     ) {
         self.meal = meal
         self.lineId = lineId
         self.lineName = lineName
         self.canteenName = canteenName
         self.subtitle = subtitle
+        self.sourcePrefix = sourcePrefix
     }
 
     public var body: some View {
@@ -32,13 +37,17 @@ public struct MealCardView: View {
         let showImage = !imageURLs.isEmpty && selectedPrice != 0
         let rating = FormatUtils.formatRatingLabel(meal.ratings, language: lang)
 
+        let cardSourceID = "\(sourcePrefix)-card-\(meal.id)-\(lineId)"
+        let photoSourceID = "\(sourcePrefix)-photo-\(meal.id)-\(lineId)"
+
         let route = MealDetailRoute(
             mealId: meal.id,
             lineId: lineId,
             date: store.date,
             initialMeal: meal,
             canteenName: canteenName,
-            lineName: lineName
+            lineName: lineName,
+            transitionID: cardSourceID
         )
 
         HStack(alignment: .top, spacing: Spacing.md) {
@@ -48,14 +57,15 @@ public struct MealCardView: View {
                         urls: imageURLs,
                         initialIndex: 0,
                         title: meal.name,
-                        lineName: lineName ?? ""
+                        lineName: lineName ?? "",
+                        transitionID: photoSourceID
                     )
                 } label: {
                     ZStack(alignment: .bottomTrailing) {
                         CachedMealImage(urlString: primaryURL, contentMode: .fill)
                             .frame(width: 92, height: 92)
                             .background(ThemePalette.surfaceSoft)
-                            .clipShape(RoundedRectangle(cornerRadius: Radii.sm))
+                            .clipShape(ConcentricRectangle(corners: .concentric(minimum: 10)))
 
                         if imageURLs.count > 1 {
                             Text("\(imageURLs.count)x")
@@ -63,13 +73,14 @@ public struct MealCardView: View {
                                 .foregroundStyle(.white)
                                 .padding(.horizontal, 6)
                                 .padding(.vertical, 2)
-                                .background(Capsule().fill(Color.black.opacity(0.78)))
+                                .mensaGlassSurface(cornerRadius: 999, isDarkOverlay: true)
                                 .padding(6)
                         }
                     }
                     .frame(width: 92, height: 92)
                 }
                 .buttonStyle(.plain)
+                .optionalMatchedTransitionSource(id: photoSourceID, in: lightboxNamespace)
                 .accessibilityLabel("\(s.mealPhoto): \(meal.name)")
             }
 
@@ -133,7 +144,7 @@ public struct MealCardView: View {
                             .foregroundStyle(ThemePalette.brandDeep)
                             .padding(.horizontal, 10)
                             .padding(.vertical, 4)
-                            .background(RoundedRectangle(cornerRadius: Radii.sm).fill(ThemePalette.brandSoft))
+                            .background(RoundedRectangle(cornerRadius: Radii.sm, style: .continuous).fill(ThemePalette.brandSoft))
                     }
                 }
                 .buttonStyle(.plain)
@@ -142,10 +153,13 @@ public struct MealCardView: View {
         }
         .padding(Spacing.md)
         .frame(maxHeight: .infinity, alignment: .top)
-        .background(RoundedRectangle(cornerRadius: Radii.md).fill(ThemePalette.surface))
+        .containerShape(RoundedRectangle(cornerRadius: Radii.lg, style: .continuous))
+        .background(RoundedRectangle(cornerRadius: Radii.lg, style: .continuous).fill(ThemePalette.surface))
         .overlay(
-            RoundedRectangle(cornerRadius: Radii.md)
+            RoundedRectangle(cornerRadius: Radii.lg, style: .continuous)
                 .stroke(ThemePalette.border, lineWidth: 1)
         )
+        .shadow(color: .black.opacity(0.04), radius: 8, y: 2)
+        .optionalMatchedTransitionSource(id: cardSourceID, in: navZoomNamespace)
     }
 }

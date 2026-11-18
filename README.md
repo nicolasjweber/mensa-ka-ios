@@ -12,7 +12,7 @@ A native Swift and SwiftUI app for iOS and iPadOS to browse Karlsruhe university
 
 ## Features
 
-- **Native SwiftUI & Liquid Glass UI**: Built directly with Apple's SwiftUI frameworks: adaptive `TabView` (`.sidebarAdaptable` on iPadOS, dedicated `Tab(role: .search)` on iPhone, `.tabBarMinimizeBehavior(.onScrollDown)` on iOS 26+), native navigation toolbars, interactive `GlassEffectContainer` & `.glassEffect(...)` controls on iOS 26+ (with automatic Reduce Transparency and iOS 17/18 fallbacks), SF Symbols, and tactile haptics.
+- **Native SwiftUI & Liquid Glass UI**: Built for iOS 26+ with Apple's Liquid Glass design system: adaptive `TabView` (`.sidebarAdaptable` on iPadOS, dedicated `Tab(role: .search)` on iPhone, `.tabBarMinimizeBehavior(.onScrollDown)`), floating Liquid Glass toolbars, interactive `GlassEffectContainer`, `.glassEffect(...)`, and `glassEffectID` morphing controls (with automatic Reduce Transparency fallbacks), `.scrollEdgeEffectStyle(.soft, for: .all)`, `ConcentricRectangle` cards, zoom navigation transitions, SF Symbols, and tactile haptics.
 - **Adaptive iPad & Multitasking Layout**: Scales cleanly between single-column layouts on iPhone / Slide Over and centered two-column `LazyVGrid` grids on iPad and wide Split View windows (`portrait` and `landscape`), with centered section headers and adaptive photo galleries.
 - **Daily Menus & Quick Date Navigation**:
   - Browse meals grouped by serving line (automatically stripping redundant `"11-14 Uhr"` suffixes).
@@ -32,7 +32,7 @@ A native Swift and SwiftUI app for iOS and iPadOS to browse Karlsruhe university
 
 ## Installation
 
-Mensa KA requires **iOS or iPadOS 17.0+** (with Liquid Glass features active on **iOS/iPadOS 26.0+**) and is distributed as an unsigned `.ipa` without paid Apple Developer entitlements (`ITSAppUsesNonExemptEncryption: false`).
+Mensa KA requires **iOS or iPadOS 26.0+** and is distributed as an unsigned `.ipa` without paid Apple Developer entitlements (`ITSAppUsesNonExemptEncryption: false`).
 
 1. Obtain `MensaKA-unsigned.ipa`:
    - Download it from the repository's **Releases** or from a **Actions → Build Unsigned iOS IPA** workflow run artifact (`MensaKA-unsigned-release-ipa`).
@@ -57,7 +57,7 @@ Mensa KA requires **iOS or iPadOS 17.0+** (with Liquid Glass features active on 
 
 ```text
 mensa-ka-ios/
-├── Package.swift                       # SwiftPM manifest targeting iOS 17+
+├── Package.swift                       # SwiftPM manifest targeting iOS 26+
 ├── xtool.yml                           # xtool app packaging config (bundle ID, icon, Info.plist)
 ├── Info.plist                          # App metadata, orientations & status bar configuration
 ├── Resources/

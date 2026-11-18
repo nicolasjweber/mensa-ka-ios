@@ -87,7 +87,8 @@ public struct SearchView: View {
                                             meal: meal,
                                             lineId: section.line.id,
                                             lineName: section.line.name,
-                                            canteenName: selectedCanteen?.name
+                                            canteenName: selectedCanteen?.name,
+                                            sourcePrefix: "search"
                                         )
                                     }
                                 }
@@ -104,6 +105,7 @@ public struct SearchView: View {
         }
         .scrollDismissesKeyboard(.interactively)
         .background(ThemePalette.canvas.ignoresSafeArea())
+        .scrollEdgeEffectStyle(.soft, for: .all)
         .navigationTitle(s.searchTitle)
         .navigationBarTitleDisplayMode(isPad ? .inline : .large)
         .searchable(

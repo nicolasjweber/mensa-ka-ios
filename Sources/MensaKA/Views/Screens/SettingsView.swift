@@ -173,8 +173,7 @@ public struct SettingsView: View {
                 }
             }
         }
-        .scrollContentBackground(.hidden)
-        .background(ThemePalette.canvas)
+        .scrollEdgeEffectStyle(.soft, for: .all)
         .navigationTitle(s.settingsTitle)
         .navigationBarTitleDisplayMode(isPad ? .inline : .large)
         .alert(s.cacheClearedTitle, isPresented: $showCacheClearedAlert) {

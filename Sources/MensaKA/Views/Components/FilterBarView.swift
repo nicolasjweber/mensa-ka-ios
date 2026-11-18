@@ -2,6 +2,7 @@ import SwiftUI
 
 public struct FilterBarView: View {
     @Environment(MensaStore.self) private var store
+    @Namespace private var filterNamespace
 
     public init() {}
 
@@ -35,7 +36,9 @@ public struct FilterBarView: View {
                     let label = s.filterLabel(key)
 
                     Button {
-                        store.toggleFilter(key)
+                        withAnimation(.spring(duration: 0.3, bounce: 0.25)) {
+                            store.toggleFilter(key)
+                        }
                     } label: {
                         HStack(spacing: 6) {
                             Image(systemName: symbol(for: key))
@@ -51,6 +54,7 @@ public struct FilterBarView: View {
                     }
                     .buttonStyle(.plain)
                     .mensaGlassPill(shape: .capsule, tone: active ? .active : .neutral)
+                    .glassEffectID(key.rawValue, in: filterNamespace)
                     .accessibilityLabel("\(s.filterPrefix): \(label)")
                 }
             }

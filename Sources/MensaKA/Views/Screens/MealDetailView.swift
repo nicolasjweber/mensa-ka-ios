@@ -3,6 +3,7 @@ import SwiftUI
 public struct MealDetailView: View {
     @Environment(MensaStore.self) private var store
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    @Environment(\.lightboxNamespace) private var lightboxNamespace
 
     public let route: MealDetailRoute
 
@@ -77,6 +78,7 @@ public struct MealDetailView: View {
                     .frame(maxWidth: .infinity)
                 }
                 .background(ThemePalette.canvas.ignoresSafeArea())
+                .scrollEdgeEffectStyle(.soft, for: .all)
                 .navigationTitle(meal.name)
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
@@ -164,19 +166,22 @@ public struct MealDetailView: View {
         lineName: String?,
         s: Strings
     ) -> some View {
-        Button {
+        let photoSourceID = "detail-photo-\(route.mealId)-\(idx)"
+        return Button {
             store.lightboxPayload = LightboxPayload(
                 urls: allURLs,
                 initialIndex: idx,
                 title: mealName,
-                lineName: lineName ?? ""
+                lineName: lineName ?? "",
+                transitionID: photoSourceID
             )
         } label: {
             CachedMealImage(urlString: url, contentMode: .fill)
                 .background(ThemePalette.surfaceSoft)
-                .clipShape(RoundedRectangle(cornerRadius: Radii.lg))
+                .clipShape(RoundedRectangle(cornerRadius: Radii.lg, style: .continuous))
         }
         .buttonStyle(.plain)
+        .optionalMatchedTransitionSource(id: photoSourceID, in: lightboxNamespace)
         .accessibilityLabel("\(s.mealPhoto) \(idx + 1) / \(allURLs.count)")
     }
 
@@ -218,9 +223,9 @@ public struct MealDetailView: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(Spacing.lg)
-        .background(RoundedRectangle(cornerRadius: Radii.md).fill(ThemePalette.surface))
+        .background(RoundedRectangle(cornerRadius: Radii.lg, style: .continuous).fill(ThemePalette.surface))
         .overlay(
-            RoundedRectangle(cornerRadius: Radii.md)
+            RoundedRectangle(cornerRadius: Radii.lg, style: .continuous)
                 .stroke(ThemePalette.border, lineWidth: 1)
         )
     }
@@ -403,9 +408,9 @@ public struct MealDetailView: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(Spacing.lg)
-        .background(RoundedRectangle(cornerRadius: Radii.md).fill(ThemePalette.surface))
+        .background(RoundedRectangle(cornerRadius: Radii.lg, style: .continuous).fill(ThemePalette.surface))
         .overlay(
-            RoundedRectangle(cornerRadius: Radii.md)
+            RoundedRectangle(cornerRadius: Radii.lg, style: .continuous)
                 .stroke(ThemePalette.border, lineWidth: 1)
         )
     }

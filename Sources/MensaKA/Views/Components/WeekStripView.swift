@@ -2,6 +2,7 @@ import SwiftUI
 
 public struct WeekStripView: View {
     @Environment(MensaStore.self) private var store
+    @Namespace private var glassNamespace
 
     public init() {}
 
@@ -15,15 +16,18 @@ public struct WeekStripView: View {
             AdaptiveGlassContainer(spacing: 8) {
                 HStack(spacing: Spacing.sm) {
                     Button {
-                        store.shiftDate(-1)
+                        withAnimation(.spring(duration: 0.35, bounce: 0.25)) {
+                            store.shiftDate(-1)
+                        }
                     } label: {
                         Image(systemName: "chevron.left")
                             .font(.system(size: 14, weight: .semibold))
                             .foregroundStyle(ThemePalette.text)
-                            .frame(width: 38, height: 38)
+                            .frame(width: 40, height: 40)
                     }
                     .buttonStyle(.plain)
                     .mensaGlassPill(shape: .circle, tone: .neutral)
+                    .glassEffectID("prev", in: glassNamespace)
                     .accessibilityLabel(s.previousWeekday)
 
                     Spacer(minLength: 4)
@@ -44,15 +48,18 @@ public struct WeekStripView: View {
                                 .foregroundStyle(ThemePalette.muted)
                         }
                         .padding(.horizontal, 14)
-                        .padding(.vertical, 9)
+                        .padding(.vertical, 10)
                     }
                     .buttonStyle(.plain)
                     .mensaGlassPill(shape: .capsule, tone: .neutral)
+                    .glassEffectID("calendar", in: glassNamespace)
                     .accessibilityLabel(s.openCalendar)
 
                     if showTodayButton {
                         Button {
-                            store.goToToday()
+                            withAnimation(.spring(duration: 0.35, bounce: 0.25)) {
+                                store.goToToday()
+                            }
                         } label: {
                             HStack(spacing: 4) {
                                 Image(systemName: "arrow.counterclockwise")
@@ -64,36 +71,43 @@ public struct WeekStripView: View {
                                     .lineLimit(1)
                             }
                             .padding(.horizontal, 12)
-                            .padding(.vertical, 7)
+                            .padding(.vertical, 8)
                         }
                         .buttonStyle(.plain)
                         .mensaGlassPill(shape: .capsule, tone: .accent)
+                        .glassEffectID("today", in: glassNamespace)
+                        .transition(.scale.combined(with: .opacity))
                         .accessibilityLabel(s.jumpToToday)
                     }
 
                     Spacer(minLength: 4)
 
                     Button {
-                        store.shiftDate(1)
+                        withAnimation(.spring(duration: 0.35, bounce: 0.25)) {
+                            store.shiftDate(1)
+                        }
                     } label: {
                         Image(systemName: "chevron.right")
                             .font(.system(size: 14, weight: .semibold))
                             .foregroundStyle(ThemePalette.text)
-                            .frame(width: 38, height: 38)
+                            .frame(width: 40, height: 40)
                     }
                     .buttonStyle(.plain)
                     .mensaGlassPill(shape: .circle, tone: .neutral)
+                    .glassEffectID("next", in: glassNamespace)
                     .accessibilityLabel(s.nextWeekday)
                 }
             }
 
-            AdaptiveGlassContainer(spacing: 8) {
+            AdaptiveGlassContainer(spacing: 6) {
                 HStack(spacing: 6) {
                     ForEach(weekdays) { item in
                         let isSelected = item.dateStr == store.date
                         Button {
                             if !isSelected {
-                                store.setDate(item.dateStr)
+                                withAnimation(.spring(duration: 0.32, bounce: 0.22)) {
+                                    store.setDate(item.dateStr)
+                                }
                             }
                         } label: {
                             VStack(spacing: 1) {
@@ -131,6 +145,7 @@ public struct WeekStripView: View {
                             shape: .roundedRectangle(Radii.md),
                             tone: isSelected ? .active : .neutral
                         )
+                        .glassEffectID(item.dateStr, in: glassNamespace)
                         .accessibilityLabel(
                             "\(item.dayShort), \(item.dayNum) \(item.monthShort)\(item.isToday ? " (\(s.today))" : "")"
                         )

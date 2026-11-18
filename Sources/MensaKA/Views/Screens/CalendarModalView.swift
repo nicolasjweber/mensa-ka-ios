@@ -29,34 +29,58 @@ public struct CalendarModalView: View {
                     LabeledContent(s.selectedDay) {
                         Text(DateUtils.formatDateHeader(selectedDateStr, language: lang))
                             .foregroundStyle(ThemePalette.text)
+                            .fontWeight(.semibold)
                     }
+                }
 
+                Section {
                     Button {
-                        store.setDate(selectedDateStr)
+                        withAnimation(.spring(duration: 0.35, bounce: 0.25)) {
+                            store.setDate(selectedDateStr)
+                        }
                         dismiss()
                     } label: {
                         Label(s.applyButton, systemImage: "checkmark.circle.fill")
+                            .frame(maxWidth: .infinity)
                     }
+                    .buttonStyle(.glassProminent)
+                    .controlSize(.large)
+                    .tint(ThemePalette.brand)
+                    .listRowBackground(Color.clear)
+                    .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 4, trailing: 0))
 
                     Button {
-                        store.shiftDate(5)
+                        withAnimation(.spring(duration: 0.35, bounce: 0.25)) {
+                            store.shiftDate(5)
+                        }
                         dismiss()
                     } label: {
                         Label(s.nextWeekButton, systemImage: "calendar.badge.plus")
+                            .frame(maxWidth: .infinity)
                     }
+                    .buttonStyle(.glass)
+                    .controlSize(.large)
+                    .listRowBackground(Color.clear)
+                    .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 4, trailing: 0))
 
                     if store.date != store.todayWeekday || selectedDateStr != store.todayWeekday {
                         Button {
-                            store.goToToday()
+                            withAnimation(.spring(duration: 0.35, bounce: 0.25)) {
+                                store.goToToday()
+                            }
                             dismiss()
                         } label: {
                             Label(s.todayButton, systemImage: "arrow.counterclockwise")
+                                .frame(maxWidth: .infinity)
                         }
+                        .buttonStyle(.glass)
+                        .controlSize(.large)
+                        .listRowBackground(Color.clear)
+                        .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 4, trailing: 0))
                     }
                 }
             }
-            .scrollContentBackground(.hidden)
-            .background(ThemePalette.canvas)
+            .scrollEdgeEffectStyle(.soft, for: .all)
             .navigationTitle(s.calendarTitle)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -70,11 +94,15 @@ public struct CalendarModalView: View {
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
-                        store.setDate(selectedDateStr)
+                        withAnimation(.spring(duration: 0.35, bounce: 0.25)) {
+                            store.setDate(selectedDateStr)
+                        }
                         dismiss()
                     } label: {
                         Image(systemName: "checkmark")
                     }
+                    .buttonStyle(.glassProminent)
+                    .tint(ThemePalette.brand)
                     .accessibilityLabel(s.applyAccessibility)
                 }
             }

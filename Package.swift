@@ -4,7 +4,7 @@ import PackageDescription
 let package = Package(
     name: "MensaKA",
     platforms: [
-        .iOS(.v17),
+        .iOS("26.0"),
     ],
     products: [
         .library(

@@ -302,6 +302,25 @@ public struct MealDetailRoute: Hashable, Sendable {
     public let initialMeal: Meal?
     public let canteenName: String?
     public let lineName: String?
+    public let transitionID: String
+
+    public init(
+        mealId: String,
+        lineId: String,
+        date: String,
+        initialMeal: Meal? = nil,
+        canteenName: String? = nil,
+        lineName: String? = nil,
+        transitionID: String = ""
+    ) {
+        self.mealId = mealId
+        self.lineId = lineId
+        self.date = date
+        self.initialMeal = initialMeal
+        self.canteenName = canteenName
+        self.lineName = lineName
+        self.transitionID = transitionID.isEmpty ? "\(mealId)-\(lineId)" : transitionID
+    }
 }
 
 public struct LightboxPayload: Identifiable, Hashable, Sendable {
@@ -310,4 +329,19 @@ public struct LightboxPayload: Identifiable, Hashable, Sendable {
     public let initialIndex: Int
     public let title: String
     public let lineName: String
+    public let transitionID: String?
+
+    public init(
+        urls: [String],
+        initialIndex: Int,
+        title: String,
+        lineName: String,
+        transitionID: String? = nil
+    ) {
+        self.urls = urls
+        self.initialIndex = initialIndex
+        self.title = title
+        self.lineName = lineName
+        self.transitionID = transitionID
+    }
 }

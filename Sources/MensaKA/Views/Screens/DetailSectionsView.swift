@@ -28,8 +28,7 @@ public struct DetailSectionsView: View {
                 Text(s.detailEditorFooter)
             }
         }
-        .scrollContentBackground(.hidden)
-        .background(ThemePalette.canvas)
+        .scrollEdgeEffectStyle(.soft, for: .all)
         .environment(\.editMode, .constant(.active))
         .navigationTitle(s.settingsSectionsTitle)
         .navigationBarTitleDisplayMode(.inline)

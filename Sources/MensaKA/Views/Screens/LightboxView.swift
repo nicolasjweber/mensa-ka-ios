@@ -3,6 +3,7 @@ import SwiftUI
 public struct LightboxView: View {
     @Environment(MensaStore.self) private var store
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.lightboxNamespace) private var lightboxNamespace
 
     public let payload: LightboxPayload
 
@@ -168,6 +169,7 @@ public struct LightboxView: View {
         }
         .preferredColorScheme(.dark)
         .statusBarHidden(!chromeVisible)
+        .optionalZoomTransition(sourceID: payload.transitionID, in: lightboxNamespace)
         .onChange(of: activeIndex) { _, _ in
             isZoomed = false
         }
