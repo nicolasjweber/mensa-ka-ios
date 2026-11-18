@@ -103,8 +103,19 @@ private struct RootContentView: View {
                 .preferredColorScheme(store.preferredColorScheme)
                 .tint(ThemePalette.brand)
                 .environment(\.locale, store.appLocale)
-                .presentationDetents([.fraction(0.75), .fraction(0.92)])
-                .presentationDragIndicator(.visible)
+                .applyIf(isPad) { view in
+                    view
+                        .presentationSizing(.fitted)
+                        .frame(
+                            minWidth: 360, idealWidth: 400, maxWidth: 440,
+                            minHeight: 560, idealHeight: 630, maxHeight: 700
+                        )
+                }
+                .applyIf(!isPad) { view in
+                    view
+                        .presentationDetents([.fraction(0.75), .fraction(0.92)])
+                        .presentationDragIndicator(.visible)
+                }
         }
         .fullScreenCover(item: $bindableStore.lightboxPayload) { payload in
             LightboxView(payload: payload)

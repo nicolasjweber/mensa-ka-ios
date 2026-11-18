@@ -1,4 +1,7 @@
 import SwiftUI
+#if canImport(UIKit)
+import UIKit
+#endif
 
 public struct CalendarModalView: View {
     @Environment(MensaStore.self) private var store
@@ -8,13 +11,18 @@ public struct CalendarModalView: View {
 
     public init() {}
 
+    private var isPad: Bool {
+        UIDevice.current.userInterfaceIdiom == .pad
+    }
+
     public var body: some View {
         let s = store.strings
         let selectedDateStr = DateUtils.toDateString(selectedDate)
+        let columnWidth: CGFloat? = isPad ? 330 : nil
 
         NavigationStack {
             ScrollView {
-                VStack(spacing: Spacing.md) {
+                VStack(spacing: isPad ? Spacing.sm : Spacing.md) {
                     DatePicker(
                         s.pickerTitle,
                         selection: $selectedDate,
@@ -22,7 +30,8 @@ public struct CalendarModalView: View {
                     )
                     .datePickerStyle(.graphical)
                     .tint(ThemePalette.brand)
-                    .padding(Spacing.sm)
+                    .padding(isPad ? Spacing.xs : Spacing.sm)
+                    .frame(maxWidth: columnWidth ?? .infinity)
                     .background(
                         RoundedRectangle(cornerRadius: Radii.lg, style: .continuous)
                             .fill(ThemePalette.surface)
@@ -43,7 +52,7 @@ public struct CalendarModalView: View {
                                 .frame(maxWidth: .infinity)
                         }
                         .buttonStyle(.glassProminent)
-                        .controlSize(.large)
+                        .controlSize(isPad ? .regular : .large)
                         .tint(ThemePalette.brand)
 
                         Button {
@@ -56,7 +65,7 @@ public struct CalendarModalView: View {
                                 .frame(maxWidth: .infinity)
                         }
                         .buttonStyle(.glass)
-                        .controlSize(.large)
+                        .controlSize(isPad ? .regular : .large)
 
                         if store.date != store.todayWeekday || selectedDateStr != store.todayWeekday {
                             Button {
@@ -69,13 +78,15 @@ public struct CalendarModalView: View {
                                     .frame(maxWidth: .infinity)
                             }
                             .buttonStyle(.glass)
-                            .controlSize(.large)
+                            .controlSize(isPad ? .regular : .large)
                         }
                     }
+                    .frame(maxWidth: columnWidth ?? .infinity)
                 }
+                .frame(maxWidth: .infinity)
                 .padding(.horizontal, Spacing.lg)
-                .padding(.top, Spacing.sm)
-                .padding(.bottom, Spacing.lg)
+                .padding(.top, isPad ? Spacing.xs : Spacing.sm)
+                .padding(.bottom, isPad ? Spacing.md : Spacing.lg)
             }
             .background(ThemePalette.canvas.ignoresSafeArea())
             .scrollEdgeEffectStyle(.soft, for: .all)
