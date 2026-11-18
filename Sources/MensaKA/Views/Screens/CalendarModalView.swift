@@ -13,8 +13,8 @@ public struct CalendarModalView: View {
         let selectedDateStr = DateUtils.toDateString(selectedDate)
 
         NavigationStack {
-            Form {
-                Section {
+            ScrollView {
+                VStack(spacing: Spacing.md) {
                     DatePicker(
                         s.pickerTitle,
                         selection: $selectedDate,
@@ -22,77 +22,79 @@ public struct CalendarModalView: View {
                     )
                     .datePickerStyle(.graphical)
                     .tint(ThemePalette.brand)
-                }
+                    .padding(Spacing.sm)
+                    .background(
+                        RoundedRectangle(cornerRadius: Radii.lg, style: .continuous)
+                            .fill(ThemePalette.surface)
+                    )
+                    .overlay(
+                        RoundedRectangle(cornerRadius: Radii.lg, style: .continuous)
+                            .stroke(ThemePalette.border, lineWidth: 1)
+                    )
 
-                Section {
-                    Button {
-                        withAnimation(.spring(duration: 0.35, bounce: 0.25)) {
-                            store.setDate(selectedDateStr)
-                        }
-                        dismiss()
-                    } label: {
-                        Label(s.applyButton, systemImage: "checkmark.circle.fill")
-                            .frame(maxWidth: .infinity)
-                    }
-                    .buttonStyle(.glassProminent)
-                    .controlSize(.large)
-                    .tint(ThemePalette.brand)
-                    .listRowBackground(Color.clear)
-                    .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 4, trailing: 0))
-
-                    Button {
-                        withAnimation(.spring(duration: 0.35, bounce: 0.25)) {
-                            store.shiftDate(5)
-                        }
-                        dismiss()
-                    } label: {
-                        Label(s.nextWeekButton, systemImage: "calendar.badge.plus")
-                            .frame(maxWidth: .infinity)
-                    }
-                    .buttonStyle(.glass)
-                    .controlSize(.large)
-                    .listRowBackground(Color.clear)
-                    .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 4, trailing: 0))
-
-                    if store.date != store.todayWeekday || selectedDateStr != store.todayWeekday {
+                    VStack(spacing: Spacing.sm) {
                         Button {
                             withAnimation(.spring(duration: 0.35, bounce: 0.25)) {
-                                store.goToToday()
+                                store.setDate(selectedDateStr)
                             }
                             dismiss()
                         } label: {
-                            Label(s.todayButton, systemImage: "arrow.counterclockwise")
+                            Label(s.applyButton, systemImage: "checkmark.circle.fill")
+                                .frame(maxWidth: .infinity)
+                        }
+                        .buttonStyle(.glassProminent)
+                        .controlSize(.large)
+                        .tint(ThemePalette.brand)
+
+                        Button {
+                            withAnimation(.spring(duration: 0.35, bounce: 0.25)) {
+                                store.shiftDate(5)
+                            }
+                            dismiss()
+                        } label: {
+                            Label(s.nextWeekButton, systemImage: "calendar.badge.plus")
                                 .frame(maxWidth: .infinity)
                         }
                         .buttonStyle(.glass)
                         .controlSize(.large)
-                        .listRowBackground(Color.clear)
-                        .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 4, trailing: 0))
+
+                        if store.date != store.todayWeekday || selectedDateStr != store.todayWeekday {
+                            Button {
+                                withAnimation(.spring(duration: 0.35, bounce: 0.25)) {
+                                    store.goToToday()
+                                }
+                                dismiss()
+                            } label: {
+                                Label(s.todayButton, systemImage: "arrow.counterclockwise")
+                                    .frame(maxWidth: .infinity)
+                            }
+                            .buttonStyle(.glass)
+                            .controlSize(.large)
+                        }
                     }
                 }
+                .padding(.horizontal, Spacing.lg)
+                .padding(.top, Spacing.sm)
+                .padding(.bottom, Spacing.lg)
             }
+            .background(ThemePalette.canvas.ignoresSafeArea())
             .scrollEdgeEffectStyle(.soft, for: .all)
             .navigationTitle(s.calendarTitle)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Button {
+                    Button(role: .close) {
                         dismiss()
-                    } label: {
-                        Image(systemName: "xmark")
                     }
                     .accessibilityLabel(s.cancel)
                 }
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button {
+                    Button(role: .confirm) {
                         withAnimation(.spring(duration: 0.35, bounce: 0.25)) {
                             store.setDate(selectedDateStr)
                         }
                         dismiss()
-                    } label: {
-                        Image(systemName: "checkmark")
                     }
-                    .buttonStyle(.glassProminent)
                     .tint(ThemePalette.brand)
                     .accessibilityLabel(s.applyAccessibility)
                 }
