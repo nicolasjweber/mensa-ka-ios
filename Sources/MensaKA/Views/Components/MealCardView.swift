@@ -61,23 +61,11 @@ public struct MealCardView: View {
                         transitionID: photoSourceID
                     )
                 } label: {
-                    ZStack(alignment: .bottomTrailing) {
-                        CachedMealImage(urlString: primaryURL, contentMode: .fill)
-                            .frame(width: 92, height: 92)
-                            .background(ThemePalette.surfaceSoft)
-                            .clipShape(ConcentricRectangle(corners: .concentric(minimum: 10)))
-
-                        if imageURLs.count > 1 {
-                            Text("\(imageURLs.count)x")
-                                .font(.system(size: 11, weight: .bold))
-                                .foregroundStyle(.white)
-                                .padding(.horizontal, 6)
-                                .padding(.vertical, 2)
-                                .mensaGlassSurface(cornerRadius: 999, isDarkOverlay: true)
-                                .padding(6)
-                        }
-                    }
-                    .frame(width: 92, height: 92)
+                    CachedMealImage(urlString: primaryURL, contentMode: .fill)
+                        .frame(width: 92, height: 92)
+                        .clipped()
+                        .background(ThemePalette.surfaceSoft)
+                        .clipShape(ConcentricRectangle(corners: .concentric(minimum: 10)))
                 }
                 .buttonStyle(.plain)
                 .optionalMatchedTransitionSource(id: photoSourceID, in: lightboxNamespace)
