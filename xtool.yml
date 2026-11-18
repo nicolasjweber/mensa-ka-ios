@@ -1,5 +1,5 @@
 version: 1
-bundleID: de.weber.mensaka
+bundleID: de.weber.mensaka.native
 product: MensaKA
 iconPath: Resources/AppIcon.png
 infoPath: Info.plist

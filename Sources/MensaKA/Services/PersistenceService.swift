@@ -9,7 +9,7 @@ public struct CachedMealPlanEntry: Codable, Sendable {
 public enum PersistenceService {
     private static let preferencesKey = "mensa-ka:preferences:v1"
     private static let favoritesKey = "mensa-ka:favorites:v1"
-    private static let keychainService = "de.weber.mensaka"
+    private static let keychainService = "de.weber.mensaka.native"
     private static let clientIDAccount = "mensa_ka_client_id"
     private static let authHeaderAccount = "mensa_ka_custom_auth_header"
 
