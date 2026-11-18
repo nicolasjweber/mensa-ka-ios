@@ -69,6 +69,7 @@ private struct RootContentView: View {
                                 .optionalZoomTransition(sourceID: route.transitionID, in: favZoomNamespace)
                         }
                 }
+                .tint(ThemePalette.brand)
                 .environment(\.navZoomNamespace, favZoomNamespace)
             }
 
@@ -76,6 +77,7 @@ private struct RootContentView: View {
                 NavigationStack {
                     SettingsView()
                 }
+                .tint(ThemePalette.brand)
             }
 
             if !isPad {
@@ -87,10 +89,12 @@ private struct RootContentView: View {
                                     .optionalZoomTransition(sourceID: route.transitionID, in: searchZoomNamespace)
                             }
                     }
+                    .tint(ThemePalette.brand)
                     .environment(\.navZoomNamespace, searchZoomNamespace)
                 }
             }
         }
+        .tint(selectedTab == .favorites ? ThemePalette.favorite : ThemePalette.brand)
         .tabViewStyle(.sidebarAdaptable)
         .tabBarMinimizeBehavior(.onScrollDown)
         .environment(\.lightboxNamespace, lightboxNamespace)

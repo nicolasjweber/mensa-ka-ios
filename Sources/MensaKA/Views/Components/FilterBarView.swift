@@ -34,6 +34,9 @@ public struct FilterBarView: View {
                 ForEach(FilterKey.allCases) { key in
                     let active = store.activeFilters.isActive(key)
                     let label = s.filterLabel(key)
+                    let isFavoriteFilter = key == .favoritesOnly
+                    let accent = isFavoriteFilter ? ThemePalette.favorite : ThemePalette.brand
+                    let activeInk = isFavoriteFilter ? ThemePalette.favoriteInk : ThemePalette.brandInk
 
                     Button {
                         withAnimation(.spring(duration: 0.3, bounce: 0.25)) {
@@ -43,17 +46,17 @@ public struct FilterBarView: View {
                         HStack(spacing: 6) {
                             Image(systemName: symbol(for: key))
                                 .font(.system(size: 13, weight: .semibold))
-                                .foregroundStyle(active ? ThemePalette.brandInk : ThemePalette.brand)
+                                .foregroundStyle(active ? activeInk : accent)
                             Text(label)
                                 .font(.system(size: 13, weight: .bold))
-                                .foregroundStyle(active ? ThemePalette.brandInk : ThemePalette.text)
+                                .foregroundStyle(active ? activeInk : ThemePalette.text)
                                 .lineLimit(1)
                         }
                         .padding(.horizontal, 14)
                         .padding(.vertical, 8)
                     }
                     .buttonStyle(.plain)
-                    .mensaGlassPill(shape: .capsule, tone: active ? .active : .neutral)
+                    .mensaGlassPill(shape: .capsule, tone: active ? .active : .neutral, activeTint: accent)
                     .glassEffectID(key.rawValue, in: filterNamespace)
                     .accessibilityLabel("\(s.filterPrefix): \(label)")
                 }

@@ -65,6 +65,7 @@ public enum ThemePalette {
     )
 
     public static let favorite = Color.dynamic(lightHex: 0xC92A54, darkHex: 0xFF6B8B)
+    public static let favoriteInk = Color.dynamic(lightHex: 0xFFFFFF, darkHex: 0x26050E)
     public static let starColor = Color.dynamic(lightHex: 0xB87400, darkHex: 0xF5B935)
     public static let skeletonStart = Color.dynamic(lightHex: 0xE1EFEC, darkHex: 0x182B27)
     public static let skeletonEnd = Color.dynamic(lightHex: 0xCEE5E0, darkHex: 0x233C37)
@@ -121,12 +122,13 @@ public func isReduceTransparencyActive() -> Bool {
 struct GlassPillModifier: ViewModifier {
     let shape: GlassShapeKind
     let tone: GlassTone
+    var activeTint: Color = ThemePalette.brand
 
     func body(content: Content) -> some View {
         if isReduceTransparencyActive() {
             let fillColor: Color = switch tone {
             case .active:
-                ThemePalette.brand
+                activeTint
             case .accent:
                 ThemePalette.brandSoft
             case .neutral:
@@ -156,7 +158,7 @@ struct GlassPillModifier: ViewModifier {
         } else {
             let glassStyle: Glass = switch tone {
             case .active:
-                .regular.tint(ThemePalette.brand).interactive()
+                .regular.tint(activeTint).interactive()
             case .accent:
                 .regular.tint(ThemePalette.brand.opacity(0.24)).interactive()
             case .neutral:
@@ -207,8 +209,8 @@ struct GlassSurfaceBackgroundModifier: ViewModifier {
 }
 
 extension View {
-    func mensaGlassPill(shape: GlassShapeKind, tone: GlassTone = .neutral) -> some View {
-        modifier(GlassPillModifier(shape: shape, tone: tone))
+    func mensaGlassPill(shape: GlassShapeKind, tone: GlassTone = .neutral, activeTint: Color = ThemePalette.brand) -> some View {
+        modifier(GlassPillModifier(shape: shape, tone: tone, activeTint: activeTint))
     }
 
     func mensaGlassSurface(cornerRadius: CGFloat, isDarkOverlay: Bool = false) -> some View {
