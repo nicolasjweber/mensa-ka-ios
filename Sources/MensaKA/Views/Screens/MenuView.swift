@@ -134,11 +134,16 @@ public struct MenuView: View {
         .navigationTitle(isPad ? "" : screenTitle)
         .navigationBarTitleDisplayMode(isPad ? .inline : .large)
         .applyIf(isPad) { view in
-            view.searchable(
-                text: $searchQuery,
-                placement: .navigationBarDrawer(displayMode: .always),
-                prompt: s.searchPlaceholder
-            )
+            view
+                .searchable(
+                    text: $searchQuery,
+                    placement: .toolbar,
+                    prompt: s.searchPlaceholder
+                )
+                .searchToolbarBehavior(.automatic)
+                .toolbar {
+                    DefaultToolbarItem(kind: .search, placement: .topBarTrailing)
+                }
         }
     }
 
