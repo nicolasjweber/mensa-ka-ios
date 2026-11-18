@@ -48,7 +48,7 @@ jobs:
       - name: Package .app into unsigned .ipa
         run: |
           set -eo pipefail
-          APP_PATH=$(find xtool .xtool-tmp -maxdepth 4 -name "*.app" 2>/dev/null | head -n 1 || true)
+          APP_PATH=$(find xtool -maxdepth 1 -name "*.app" 2>/dev/null | head -n 1 || true)
           if [ -z "$APP_PATH" ]; then
             echo "Error: Could not find built .app bundle from xtool"
             find . -maxdepth 3 -name "*.app" || true

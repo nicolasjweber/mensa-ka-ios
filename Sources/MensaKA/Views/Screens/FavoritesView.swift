@@ -33,37 +33,7 @@ public struct FavoritesView: View {
             ? [GridItem(.flexible(), spacing: Spacing.md), GridItem(.flexible(), spacing: Spacing.md)]
             : [GridItem(.flexible())]
 
-        let orderedCanteens: [Canteen] = {
-            if let selected = store.selectedCanteen {
-                return [selected] + store.canteens.filter { $0.id != selected.id }
-            }
-            return store.canteens
-        }()
-
-        var liveItems: [LiveFavorite] = []
-        var matchedIds = Set<String>()
-        for canteen in orderedCanteens {
-            for line in canteen.lines {
-                for meal in line.meals ?? [] where store.favoriteIds.contains(meal.id) {
-                    if matchedIds.insert(meal.id).inserted {
-                        liveItems.append(
-                            LiveFavorite(
-                                id: meal.id,
-                                meal: meal,
-                                lineId: line.id,
-                                lineName: line.name,
-                                canteenName: canteen.name,
-                                subtitle: "\(canteen.name) · \(line.name)"
-                            )
-                        )
-                    }
-                }
-            }
-        }
-
-        let snapshots = store.favorites.values
-            .filter { !matchedIds.contains($0.id) }
-            .sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
+        let (liveItems, snapshots) = computeFavorites()
 
         ScrollView {
             VStack(alignment: .leading, spacing: Spacing.lg) {
@@ -128,6 +98,42 @@ public struct FavoritesView: View {
         .background(ThemePalette.canvas.ignoresSafeArea())
         .navigationTitle(s.favoritesTitle)
         .navigationBarTitleDisplayMode(isPad ? .inline : .large)
+    }
+
+    private func computeFavorites() -> ([LiveFavorite], [FavoriteSnapshot]) {
+        let orderedCanteens: [Canteen] = {
+            if let selected = store.selectedCanteen {
+                return [selected] + store.canteens.filter { $0.id != selected.id }
+            }
+            return store.canteens
+        }()
+
+        var liveItems: [LiveFavorite] = []
+        var matchedIds = Set<String>()
+        for canteen in orderedCanteens {
+            for line in canteen.lines {
+                for meal in line.meals ?? [] where store.favoriteIds.contains(meal.id) {
+                    if matchedIds.insert(meal.id).inserted {
+                        liveItems.append(
+                            LiveFavorite(
+                                id: meal.id,
+                                meal: meal,
+                                lineId: line.id,
+                                lineName: line.name,
+                                canteenName: canteen.name,
+                                subtitle: "\(canteen.name) · \(line.name)"
+                            )
+                        )
+                    }
+                }
+            }
+        }
+
+        let snapshots = store.favorites.values
+            .filter { !matchedIds.contains($0.id) }
+            .sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
+
+        return (liveItems, snapshots)
     }
 
     private func sectionTitle(_ title: String) -> some View {
