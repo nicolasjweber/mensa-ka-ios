@@ -41,7 +41,9 @@ public struct MenuView: View {
 
         ScrollView {
             VStack(alignment: .leading, spacing: Spacing.md) {
-                canteenTitleMenu(screenTitle: screenTitle, s: s)
+                if isPad {
+                    canteenTitleMenu(screenTitle: screenTitle, s: s)
+                }
 
                 WeekStripView()
                 FilterBarView()
@@ -122,9 +124,38 @@ public struct MenuView: View {
                     store.shiftDate(dx < 0 ? 1 : -1)
                 }
         )
-        .toolbar(isPad ? .visible : .hidden, for: .navigationBar)
-        .navigationTitle("")
-        .navigationBarTitleDisplayMode(.inline)
+        .navigationTitle(isPad ? "" : screenTitle)
+        .navigationBarTitleDisplayMode(isPad ? .inline : .large)
+        .toolbar {
+            if !isPad {
+                ToolbarItem(placement: .largeTitle) {
+                    Menu {
+                        canteenPickerButtons()
+                    } label: {
+                        HStack(alignment: .firstTextBaseline, spacing: 6) {
+                            Text(screenTitle)
+                                .font(.largeTitle.bold())
+                                .foregroundStyle(ThemePalette.text)
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.75)
+
+                            if store.canteens.count > 1 {
+                                Image(systemName: "chevron.down")
+                                    .font(.system(size: 14, weight: .bold))
+                                    .foregroundStyle(ThemePalette.muted)
+                            }
+                        }
+                    }
+                    .buttonStyle(.plain)
+                    .disabled(store.canteens.isEmpty)
+                    .accessibilityLabel("\(s.selectCanteen): \(screenTitle)")
+                }
+
+                ToolbarTitleMenu {
+                    canteenPickerButtons()
+                }
+            }
+        }
         .applyIf(isPad) { view in
             view.searchable(
                 text: $searchQuery,
@@ -135,27 +166,32 @@ public struct MenuView: View {
     }
 
     @ViewBuilder
-    private func canteenTitleMenu(screenTitle: String, s: Strings) -> some View {
-        Menu {
-            ForEach(store.canteens) { canteen in
-                Button {
-                    store.setSelectedCanteenId(canteen.id)
-                } label: {
-                    if canteen.id == store.resolvedCanteenId {
-                        Label(canteen.name, systemImage: "checkmark")
-                    } else {
-                        Text(canteen.name)
-                    }
+    private func canteenPickerButtons() -> some View {
+        ForEach(store.canteens) { canteen in
+            Button {
+                store.setSelectedCanteenId(canteen.id)
+            } label: {
+                if canteen.id == store.resolvedCanteenId {
+                    Label(canteen.name, systemImage: "checkmark")
+                } else {
+                    Text(canteen.name)
                 }
             }
+        }
+    }
+
+    @ViewBuilder
+    private func canteenTitleMenu(screenTitle: String, s: Strings) -> some View {
+        Menu {
+            canteenPickerButtons()
         } label: {
             HStack(alignment: .center, spacing: 6) {
                 Text(screenTitle)
-                    .font(.system(size: isPad ? 32 : 34, weight: .bold))
+                    .font(.system(size: 32, weight: .bold))
                     .tracking(-0.5)
                     .foregroundStyle(ThemePalette.text)
                     .lineLimit(2)
-                    .multilineTextAlignment(isPad ? .center : .leading)
+                    .multilineTextAlignment(.center)
 
                 if store.canteens.count > 1 {
                     Image(systemName: "chevron.down")
@@ -164,7 +200,7 @@ public struct MenuView: View {
                         .padding(.top, 2)
                 }
             }
-            .frame(maxWidth: .infinity, alignment: isPad ? .center : .leading)
+            .frame(maxWidth: .infinity, alignment: .center)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
