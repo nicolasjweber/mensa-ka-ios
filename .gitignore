@@ -1,17 +1,14 @@
-# Learn more https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
+# SwiftPM & xtool build outputs
+.build/
+.swiftpm/
+.bsp/
+.xtool-tmp/
+/xtool/
+Package.resolved
 
-# Dependencies
+# Legacy local directories (when switching branches)
 node_modules/
-
-# Expo
 .expo/
-dist/
-web-build/
-expo-env.d.ts
-
-# Generated native folders (Expo Prebuild / CNG)
-/ios
-/android
 
 # iOS / Xcode / IPA build artifacts
 *.ipa
@@ -24,39 +21,17 @@ DerivedData/
 xcuserdata/
 /build/
 build-ipa/
-raw-simulator.png
 
 # Signing credentials & keys
 *.orig.*
-*.jks
 *.p8
 *.p12
 *.key
 *.mobileprovision
 *.pem
 
-# Metro, TypeScript & test/lint caches
-.metro-health-check*
-.cache/
-.eslintcache
-.turbo/
-coverage/
-*.tsbuildinfo
-
 # Logs
 *.log
-npm-debug.*
-yarn-debug.*
-yarn-error.*
-pnpm-debug.*
-
-# Local environment files
-.env
-.env.*
-!.env.example
-
-# Native temp directories
-.kotlin/
 
 # Editors, IDEs & local AI tooling
 .claude/
