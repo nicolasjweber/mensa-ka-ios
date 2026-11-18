@@ -257,10 +257,10 @@ public struct Strings: Sendable {
         }
     }
 
-    public func mealTypeLabel(_ foodType: FoodType) -> String {
+    public func mealTypeLabel(_ foodType: FoodType, compact: Bool = false) -> String {
         switch foodType {
         case .vegan: return "Vegan"
-        case .vegetarian: return isDE ? "Vegetarisch" : "Vegetarian"
+        case .vegetarian: return compact ? "Veget." : (isDE ? "Vegetarisch" : "Vegetarian")
         case .beef, .beefAW: return isDE ? "Rind" : "Beef"
         case .pork, .porkAW: return isDE ? "Schwein" : "Pork"
         case .poultry: return isDE ? "Geflügel" : "Poultry"
