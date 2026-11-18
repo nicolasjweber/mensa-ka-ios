@@ -54,8 +54,10 @@ public struct LightboxView: View {
             .tabViewStyle(.page(indexDisplayMode: .never))
             .scrollDisabled(isZoomed)
             .ignoresSafeArea()
-
-            VStack {
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .overlay {
+            VStack(spacing: 0) {
                 VStack(alignment: .leading, spacing: Spacing.xs) {
                     HStack {
                         if urls.count > 1 {
@@ -129,41 +131,29 @@ public struct LightboxView: View {
                 Spacer()
 
                 if urls.count > 1 {
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: Spacing.sm) {
-                            ForEach(Array(urls.enumerated()), id: \.offset) { idx, thumbURL in
-                                let active = idx == activeIndex
-                                Button {
-                                    Haptics.selection()
-                                    withAnimation(.easeInOut(duration: 0.2)) {
-                                        activeIndex = idx
-                                        isZoomed = false
-                                    }
-                                } label: {
-                                    CachedMealImage(urlString: thumbURL, contentMode: .fill)
-                                        .frame(width: 52, height: 52)
-                                        .clipShape(RoundedRectangle(cornerRadius: Radii.sm))
-                                        .overlay(
-                                            RoundedRectangle(cornerRadius: Radii.sm)
-                                                .stroke(
-                                                    active ? ThemePalette.brand : Color.white.opacity(0.25),
-                                                    lineWidth: active ? 2.5 : 1
-                                                )
-                                        )
-                                        .opacity(active ? 1.0 : 0.65)
+                    ViewThatFits(in: .horizontal) {
+                        thumbnailStripRow(urls: urls)
+
+                        ScrollViewReader { proxy in
+                            ScrollView(.horizontal, showsIndicators: false) {
+                                thumbnailStripRow(urls: urls)
+                            }
+                            .onChange(of: activeIndex) { _, newIndex in
+                                withAnimation(.easeInOut(duration: 0.2)) {
+                                    proxy.scrollTo(newIndex, anchor: .center)
                                 }
-                                .buttonStyle(.plain)
+                            }
+                            .onAppear {
+                                proxy.scrollTo(activeIndex, anchor: .center)
                             }
                         }
-                        .padding(.horizontal, Spacing.md)
-                        .padding(.vertical, Spacing.sm)
                     }
-                    .fixedSize(horizontal: true, vertical: false)
                     .mensaGlassSurface(cornerRadius: Radii.lg, isDarkOverlay: true)
                     .padding(.horizontal, Spacing.lg)
                     .padding(.bottom, Spacing.md)
                 }
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
             .opacity(chromeVisible ? backdropAlpha : 0)
             .allowsHitTesting(chromeVisible)
         }
@@ -173,6 +163,38 @@ public struct LightboxView: View {
         .onChange(of: activeIndex) { _, _ in
             isZoomed = false
         }
+    }
+
+    private func thumbnailStripRow(urls: [String]) -> some View {
+        HStack(spacing: Spacing.sm) {
+            ForEach(Array(urls.enumerated()), id: \.offset) { idx, thumbURL in
+                let active = idx == activeIndex
+                Button {
+                    Haptics.selection()
+                    withAnimation(.easeInOut(duration: 0.2)) {
+                        activeIndex = idx
+                        isZoomed = false
+                    }
+                } label: {
+                    CachedMealImage(urlString: thumbURL, contentMode: .fill)
+                        .frame(width: 52, height: 52)
+                        .clipped()
+                        .clipShape(RoundedRectangle(cornerRadius: Radii.sm, style: .continuous))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: Radii.sm, style: .continuous)
+                                .stroke(
+                                    active ? ThemePalette.brand : Color.white.opacity(0.25),
+                                    lineWidth: active ? 2.5 : 1
+                                )
+                        )
+                        .opacity(active ? 1.0 : 0.65)
+                }
+                .buttonStyle(.plain)
+                .id(idx)
+            }
+        }
+        .padding(.horizontal, Spacing.md)
+        .padding(.vertical, Spacing.sm)
     }
 }
 
@@ -195,6 +217,7 @@ private struct ZoomablePhotoSlide: View {
 
             CachedMealImage(urlString: urlString, contentMode: .fit, showLoadingSpinner: true)
                 .frame(width: geo.size.width, height: geo.size.height)
+                .clipped()
                 .scaleEffect(scale * dismissScale)
                 .offset(x: offset.width, y: offset.height + dragDismissY)
                 .contentShape(Rectangle())

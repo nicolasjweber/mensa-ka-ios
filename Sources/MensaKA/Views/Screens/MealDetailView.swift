@@ -79,6 +79,7 @@ public struct MealDetailView: View {
                 }
                 .background(ThemePalette.canvas.ignoresSafeArea())
                 .scrollEdgeEffectStyle(.soft, for: .all)
+                .toolbar(.visible, for: .navigationBar)
                 .navigationTitle(meal.name)
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
@@ -107,6 +108,7 @@ public struct MealDetailView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .padding(Spacing.xl)
                 .background(ThemePalette.canvas.ignoresSafeArea())
+                .toolbar(.visible, for: .navigationBar)
                 .navigationTitle(s.detailFallbackTitle)
                 .navigationBarTitleDisplayMode(.inline)
             }
@@ -132,29 +134,58 @@ public struct MealDetailView: View {
         lineName: String?,
         s: Strings
     ) -> some View {
-        if isWide && imageURLs.count == 1, let firstURL = imageURLs.first {
-            galleryTile(url: firstURL, idx: 0, allURLs: imageURLs, mealName: mealName, lineName: lineName, s: s)
-                .aspectRatio(3 / 2, contentMode: .fit)
-                .frame(maxWidth: 540)
-                .frame(maxWidth: .infinity)
+        if imageURLs.count == 1, let firstURL = imageURLs.first {
+            galleryTile(
+                url: firstURL,
+                idx: 0,
+                allURLs: imageURLs,
+                mealName: mealName,
+                lineName: lineName,
+                s: s,
+                width: nil,
+                height: nil,
+                aspectRatio: 3.0 / 2.0
+            )
+            .frame(maxWidth: isWide ? 540 : .infinity)
+            .frame(maxWidth: .infinity, alignment: .center)
         } else if isWide && imageURLs.count == 2 {
-            HStack(spacing: Spacing.sm) {
+            HStack(spacing: Spacing.md) {
                 ForEach(Array(imageURLs.enumerated()), id: \.offset) { idx, url in
-                    galleryTile(url: url, idx: idx, allURLs: imageURLs, mealName: mealName, lineName: lineName, s: s)
-                        .aspectRatio(3 / 2, contentMode: .fit)
-                        .frame(maxWidth: .infinity)
+                    galleryTile(
+                        url: url,
+                        idx: idx,
+                        allURLs: imageURLs,
+                        mealName: mealName,
+                        lineName: lineName,
+                        s: s,
+                        width: nil,
+                        height: nil,
+                        aspectRatio: 3.0 / 2.0
+                    )
+                    .frame(maxWidth: .infinity)
                 }
             }
         } else {
+            let tileWidth: CGFloat = isWide ? 356 : 300
+            let tileHeight: CGFloat = isWide ? 238 : 210
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: Spacing.sm) {
+                HStack(spacing: Spacing.md) {
                     ForEach(Array(imageURLs.enumerated()), id: \.offset) { idx, url in
-                        galleryTile(url: url, idx: idx, allURLs: imageURLs, mealName: mealName, lineName: lineName, s: s)
-                            .frame(width: isWide ? 356 : 300, height: isWide ? 238 : 210)
+                        galleryTile(
+                            url: url,
+                            idx: idx,
+                            allURLs: imageURLs,
+                            mealName: mealName,
+                            lineName: lineName,
+                            s: s,
+                            width: tileWidth,
+                            height: tileHeight,
+                            aspectRatio: nil
+                        )
                     }
                 }
             }
-            .clipShape(RoundedRectangle(cornerRadius: Radii.lg))
+            .clipShape(RoundedRectangle(cornerRadius: Radii.lg, style: .continuous))
         }
     }
 
@@ -164,7 +195,10 @@ public struct MealDetailView: View {
         allURLs: [String],
         mealName: String,
         lineName: String?,
-        s: Strings
+        s: Strings,
+        width: CGFloat?,
+        height: CGFloat?,
+        aspectRatio: CGFloat?
     ) -> some View {
         let photoSourceID = "detail-photo-\(route.mealId)-\(idx)"
         return Button {
@@ -176,9 +210,25 @@ public struct MealDetailView: View {
                 transitionID: photoSourceID
             )
         } label: {
-            CachedMealImage(urlString: url, contentMode: .fill)
-                .background(ThemePalette.surfaceSoft)
-                .clipShape(RoundedRectangle(cornerRadius: Radii.lg, style: .continuous))
+            Group {
+                if let width, let height {
+                    CachedMealImage(urlString: url, contentMode: .fill)
+                        .frame(width: width, height: height)
+                        .clipped()
+                } else if let aspectRatio {
+                    Color.clear
+                        .aspectRatio(aspectRatio, contentMode: .fit)
+                        .overlay {
+                            CachedMealImage(urlString: url, contentMode: .fill)
+                        }
+                        .clipped()
+                } else {
+                    CachedMealImage(urlString: url, contentMode: .fill)
+                        .clipped()
+                }
+            }
+            .background(ThemePalette.surfaceSoft)
+            .clipShape(RoundedRectangle(cornerRadius: Radii.lg, style: .continuous))
         }
         .buttonStyle(.plain)
         .optionalMatchedTransitionSource(id: photoSourceID, in: lightboxNamespace)

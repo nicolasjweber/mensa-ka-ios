@@ -79,6 +79,7 @@ public struct SettingsView: View {
                 }
                 .tint(ThemePalette.brand)
             }
+            .listRowBackground(ThemePalette.surface)
 
             Section(s.sectionDetailPage) {
                 NavigationLink {
@@ -92,6 +93,7 @@ public struct SettingsView: View {
                     }
                 }
             }
+            .listRowBackground(ThemePalette.surface)
 
             Section(s.sectionAppearance) {
                 Picker(selection: Binding(
@@ -118,6 +120,7 @@ public struct SettingsView: View {
                 }
                 .pickerStyle(.menu)
             }
+            .listRowBackground(ThemePalette.surface)
 
             Section(s.sectionDataCache) {
                 Button {
@@ -159,6 +162,7 @@ public struct SettingsView: View {
                 }
                 .disabled(isClearingCache)
             }
+            .listRowBackground(ThemePalette.surface)
 
             Section(s.sectionAbout) {
                 LabeledContent {
@@ -172,7 +176,10 @@ public struct SettingsView: View {
                     Label(s.rowViewGithub, systemImage: "safari")
                 }
             }
+            .listRowBackground(ThemePalette.surface)
         }
+        .scrollContentBackground(.hidden)
+        .background(ThemePalette.canvas.ignoresSafeArea())
         .scrollEdgeEffectStyle(.soft, for: .all)
         .navigationTitle(s.settingsTitle)
         .navigationBarTitleDisplayMode(isPad ? .inline : .large)

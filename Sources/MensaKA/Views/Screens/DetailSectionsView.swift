@@ -27,7 +27,10 @@ public struct DetailSectionsView: View {
             } footer: {
                 Text(s.detailEditorFooter)
             }
+            .listRowBackground(ThemePalette.surface)
         }
+        .scrollContentBackground(.hidden)
+        .background(ThemePalette.canvas.ignoresSafeArea())
         .scrollEdgeEffectStyle(.soft, for: .all)
         .environment(\.editMode, .constant(.active))
         .navigationTitle(s.settingsSectionsTitle)

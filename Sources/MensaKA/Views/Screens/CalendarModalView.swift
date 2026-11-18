@@ -10,7 +10,6 @@ public struct CalendarModalView: View {
 
     public var body: some View {
         let s = store.strings
-        let lang = store.effectiveLanguage
         let selectedDateStr = DateUtils.toDateString(selectedDate)
 
         NavigationStack {
@@ -23,14 +22,6 @@ public struct CalendarModalView: View {
                     )
                     .datePickerStyle(.graphical)
                     .tint(ThemePalette.brand)
-                }
-
-                Section {
-                    LabeledContent(s.selectedDay) {
-                        Text(DateUtils.formatDateHeader(selectedDateStr, language: lang))
-                            .foregroundStyle(ThemePalette.text)
-                            .fontWeight(.semibold)
-                    }
                 }
 
                 Section {

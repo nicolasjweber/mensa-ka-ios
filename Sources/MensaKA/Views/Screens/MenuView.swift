@@ -41,16 +41,7 @@ public struct MenuView: View {
 
         ScrollView {
             VStack(alignment: .leading, spacing: Spacing.md) {
-                if isPad {
-                    Text(screenTitle)
-                        .font(.system(size: 32, weight: .heavy))
-                        .tracking(-0.5)
-                        .foregroundStyle(ThemePalette.text)
-                        .multilineTextAlignment(.center)
-                        .lineLimit(2)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, Spacing.xs)
-                }
+                canteenTitleMenu(screenTitle: screenTitle, s: s)
 
                 WeekStripView()
                 FilterBarView()
@@ -113,7 +104,7 @@ public struct MenuView: View {
             }
             .frame(maxWidth: 1040)
             .padding(.horizontal, Spacing.lg)
-            .padding(.top, Spacing.xs)
+            .padding(.top, isPad ? Spacing.xs : Spacing.sm)
             .padding(.bottom, Spacing.xl * 2)
             .frame(maxWidth: .infinity)
         }
@@ -131,8 +122,9 @@ public struct MenuView: View {
                     store.shiftDate(dx < 0 ? 1 : -1)
                 }
         )
-        .navigationTitle(isPad ? "" : screenTitle)
-        .navigationBarTitleDisplayMode(isPad ? .inline : .large)
+        .toolbar(isPad ? .visible : .hidden, for: .navigationBar)
+        .navigationTitle("")
+        .navigationBarTitleDisplayMode(.inline)
         .applyIf(isPad) { view in
             view.searchable(
                 text: $searchQuery,
@@ -140,61 +132,44 @@ public struct MenuView: View {
                 prompt: s.searchPlaceholder
             )
         }
-        .toolbar {
-            if !isPad && store.date != store.todayWeekday {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button {
-                        store.goToToday()
-                    } label: {
-                        Image(systemName: "arrow.counterclockwise")
-                    }
-                    .accessibilityLabel(s.jumpToToday)
-                }
-            }
+    }
 
-            ToolbarItemGroup(placement: .topBarTrailing) {
-                Menu {
-                    ForEach(store.canteens) { canteen in
-                        Button {
-                            store.setSelectedCanteenId(canteen.id)
-                        } label: {
-                            if canteen.id == store.resolvedCanteenId {
-                                Label(canteen.name, systemImage: "checkmark")
-                            } else {
-                                Text(canteen.name)
-                            }
-                        }
-                    }
-                } label: {
-                    Image(systemName: "building.2")
-                }
-                .accessibilityLabel(s.selectCanteen)
-
-                Menu {
-                    ForEach(PriceTier.allCases) { tier in
-                        Button {
-                            store.setPriceMode(tier)
-                        } label: {
-                            if tier == store.preferences.priceMode {
-                                Label(s.priceTierLabel(tier), systemImage: "checkmark")
-                            } else {
-                                Text(s.priceTierLabel(tier))
-                            }
-                        }
-                    }
-                } label: {
-                    Image(systemName: "eurosign.circle")
-                }
-                .accessibilityLabel(s.selectPriceTier)
-
+    @ViewBuilder
+    private func canteenTitleMenu(screenTitle: String, s: Strings) -> some View {
+        Menu {
+            ForEach(store.canteens) { canteen in
                 Button {
-                    store.isCalendarPresented = true
+                    store.setSelectedCanteenId(canteen.id)
                 } label: {
-                    Image(systemName: "calendar")
+                    if canteen.id == store.resolvedCanteenId {
+                        Label(canteen.name, systemImage: "checkmark")
+                    } else {
+                        Text(canteen.name)
+                    }
                 }
-                .accessibilityLabel(s.openCalendar)
             }
+        } label: {
+            HStack(alignment: .center, spacing: 6) {
+                Text(screenTitle)
+                    .font(.system(size: isPad ? 32 : 34, weight: .bold))
+                    .tracking(-0.5)
+                    .foregroundStyle(ThemePalette.text)
+                    .lineLimit(2)
+                    .multilineTextAlignment(isPad ? .center : .leading)
+
+                if store.canteens.count > 1 {
+                    Image(systemName: "chevron.down")
+                        .font(.system(size: 14, weight: .bold))
+                        .foregroundStyle(ThemePalette.muted)
+                        .padding(.top, 2)
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: isPad ? .center : .leading)
+            .contentShape(Rectangle())
         }
+        .buttonStyle(.plain)
+        .disabled(store.canteens.isEmpty)
+        .accessibilityLabel("\(s.selectCanteen): \(screenTitle)")
     }
 
     @ViewBuilder
