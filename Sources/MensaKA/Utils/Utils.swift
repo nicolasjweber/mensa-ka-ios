@@ -63,7 +63,8 @@ public enum MealUtils {
 
     public static func sortedImageURLs(for meal: Meal) -> [String] {
         guard !meal.images.isEmpty else { return [] }
-        let sorted = meal.images.sorted { $0.rank > $1.rank }
+        let visible = meal.images.filter { $0.downvotes <= $0.upvotes }
+        let sorted = visible.sorted { $0.rank > $1.rank }
         var seen = Set<String>()
         var result: [String] = []
         for entry in sorted where !entry.url.isEmpty {

@@ -71,6 +71,8 @@ public struct GraphQLClient: Sendable {
             images {
               url
               rank
+              upvotes
+              downvotes
             }
             ratings {
               averageRating
@@ -100,6 +102,8 @@ public struct GraphQLClient: Sendable {
           id
           url
           rank
+          upvotes
+          downvotes
         }
         ratings {
           averageRating

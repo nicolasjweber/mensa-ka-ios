@@ -54,11 +54,38 @@ public struct MealImage: Codable, Hashable, Sendable {
     public let id: String?
     public let url: String
     public let rank: Double
+    public let upvotes: Int
+    public let downvotes: Int
 
-    public init(id: String? = nil, url: String, rank: Double) {
+    public init(
+        id: String? = nil,
+        url: String,
+        rank: Double,
+        upvotes: Int = 0,
+        downvotes: Int = 0
+    ) {
         self.id = id
         self.url = url
         self.rank = rank
+        self.upvotes = upvotes
+        self.downvotes = downvotes
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case id
+        case url
+        case rank
+        case upvotes
+        case downvotes
+    }
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decodeIfPresent(String.self, forKey: .id)
+        url = try container.decode(String.self, forKey: .url)
+        rank = try container.decode(Double.self, forKey: .rank)
+        upvotes = try container.decodeIfPresent(Int.self, forKey: .upvotes) ?? 0
+        downvotes = try container.decodeIfPresent(Int.self, forKey: .downvotes) ?? 0
     }
 }
 

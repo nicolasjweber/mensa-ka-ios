@@ -57,7 +57,7 @@ public enum PersistenceService {
     }
 
     private static var mealPlanCacheURL: URL? {
-        cacheDirectory?.appendingPathComponent("mealPlanCache.json")
+        cacheDirectory?.appendingPathComponent("mealPlanCache_v2.json")
     }
 
     public static func loadMealPlanCache() -> [String: CachedMealPlanEntry] {
