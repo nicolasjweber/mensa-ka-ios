@@ -42,7 +42,14 @@ public struct MenuView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: Spacing.md) {
                 if isPad {
-                    canteenTitleMenu(screenTitle: screenTitle, s: s)
+                    Text(screenTitle)
+                        .font(.system(size: 32, weight: .bold))
+                        .tracking(-0.5)
+                        .foregroundStyle(ThemePalette.text)
+                        .lineLimit(2)
+                        .multilineTextAlignment(.center)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, Spacing.xs)
                 }
 
                 WeekStripView()
@@ -127,33 +134,14 @@ public struct MenuView: View {
         .navigationTitle(isPad ? "" : screenTitle)
         .navigationBarTitleDisplayMode(isPad ? .inline : .large)
         .toolbar {
-            if !isPad {
-                ToolbarItem(placement: .largeTitle) {
-                    Menu {
-                        canteenPickerButtons()
-                    } label: {
-                        HStack(alignment: .firstTextBaseline, spacing: 6) {
-                            Text(screenTitle)
-                                .font(.largeTitle.bold())
-                                .foregroundStyle(ThemePalette.text)
-                                .lineLimit(1)
-                                .minimumScaleFactor(0.75)
-
-                            if store.canteens.count > 1 {
-                                Image(systemName: "chevron.down")
-                                    .font(.system(size: 14, weight: .bold))
-                                    .foregroundStyle(ThemePalette.muted)
-                            }
-                        }
-                    }
-                    .buttonStyle(.plain)
-                    .disabled(store.canteens.isEmpty)
-                    .accessibilityLabel("\(s.selectCanteen): \(screenTitle)")
-                }
-
-                ToolbarTitleMenu {
+            ToolbarItem(placement: .topBarTrailing) {
+                Menu {
                     canteenPickerButtons()
+                } label: {
+                    Image(systemName: "building.2")
                 }
+                .disabled(store.canteens.isEmpty)
+                .accessibilityLabel(s.selectCanteen)
             }
         }
         .applyIf(isPad) { view in
@@ -178,34 +166,6 @@ public struct MenuView: View {
                 }
             }
         }
-    }
-
-    @ViewBuilder
-    private func canteenTitleMenu(screenTitle: String, s: Strings) -> some View {
-        Menu {
-            canteenPickerButtons()
-        } label: {
-            HStack(alignment: .center, spacing: 6) {
-                Text(screenTitle)
-                    .font(.system(size: 32, weight: .bold))
-                    .tracking(-0.5)
-                    .foregroundStyle(ThemePalette.text)
-                    .lineLimit(2)
-                    .multilineTextAlignment(.center)
-
-                if store.canteens.count > 1 {
-                    Image(systemName: "chevron.down")
-                        .font(.system(size: 14, weight: .bold))
-                        .foregroundStyle(ThemePalette.muted)
-                        .padding(.top, 2)
-                }
-            }
-            .frame(maxWidth: .infinity, alignment: .center)
-            .contentShape(Rectangle())
-        }
-        .buttonStyle(.plain)
-        .disabled(store.canteens.isEmpty)
-        .accessibilityLabel("\(s.selectCanteen): \(screenTitle)")
     }
 
     @ViewBuilder
