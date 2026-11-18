@@ -5,7 +5,9 @@ A native Swift and SwiftUI app for iOS and iPadOS to browse Karlsruhe university
 > **API Credit:** This app is powered by the GraphQL backend from **[kronos-et-al/MensaApp](https://github.com/kronos-et-al/MensaApp)** (`https://api.mensa-ka.de/`). Huge thanks to the MensaApp maintainers for building and operating such a clean, rich, and reliable API!
 
 <p align="center">
-  <img src="assets/screenshot-iphone.png" alt="Mensa KA running on iPhone" width="360" />
+  <img src="assets/screenshot-iphone.png" alt="Mensa KA running on iPhone" width="220" />
+  &nbsp;&nbsp;
+  <img src="assets/screenshot-ipad.png" alt="Mensa KA running on iPad Pro" width="565" />
 </p>
 
 ---
@@ -21,7 +23,7 @@ A native Swift and SwiftUI app for iOS and iPadOS to browse Karlsruhe university
 - **Dietary Filters, Canteen & Price Tiers**:
   - Filter daily menus by **Vegan**, **Vegetarian**, and **Favorites**.
   - Choose your active Karlsruhe canteen and switch prices between **Student**, **Employee**, **Pupil**, and **Guest** in **Settings**.
-- **Scoped Meal Search**: Search dishes and serving lines within the currently selected canteen via the dedicated **Search** tab on iPhone or the integrated `.searchable` toolbar field on iPad.
+- **Scoped Meal Search**: Search dishes and serving lines within the currently selected canteen via the dedicated **Search** tab on iPhone or the top-right toolbar `.searchable` pill on iPad.
 - **Favorites with Offline Snapshots**: Save favorite dishes locally; meals not served on the selected date remain visible under *Saved for Other Days* with their last seen date.
 - **Community-Filtered Meal Photos & Fullscreen Viewer**:
   - Meal photos fetch community `upvotes` and `downvotes` from the API and automatically hide images that have more dislikes than likes (`downvotes > upvotes`), keeping positively rated or neutral photos sorted by rank.
@@ -85,7 +87,7 @@ mensa-ka-ios/
 │       ├── Components/                 # CachedMealImage, MealTypeBadge, MealCardView, WeekStripView, ...
 │       └── Screens/                    # MenuView, FavoritesView, SearchView, SettingsView, LightboxView, ...
 ├── scripts/
-│   ├── frame-screenshot.mjs            # Composites a screenshot into the iPhone 18 Pro Max bezel
+│   ├── frame-screenshot.mjs            # Composites screenshots into iPhone 18 Pro Max & iPad Pro bezels
 │   └── iphone-18-pro-max-frame.png     # Transparent iPhone 18 Pro Max bezel overlay template
 └── .github/workflows/
     └── build-ios-ipa.yml               # CI workflow: unsigned .ipa build & v* tag releases
@@ -101,10 +103,11 @@ The repository includes [`.github/workflows/build-ios-ipa.yml`](.github/workflow
 2. Builds the unsigned `.app` bundle for the chosen configuration (`release` or `debug`), packages it into `MensaKA-unsigned.ipa`, and uploads `MensaKA-unsigned-<configuration>-ipa`.
 3. **GitHub Releases (`v*` tags)**: When a version tag like `v2.0.0` is pushed, the workflow automatically creates or updates a GitHub Release with `MensaKA-unsigned.ipa` attached.
 
-To frame a raw iPhone screenshot manually:
+To frame raw iPhone and iPad screenshots manually:
 
 ```bash
-node scripts/frame-screenshot.mjs path/to/raw-simulator.png assets/screenshot-iphone.png
+node scripts/frame-screenshot.mjs path/to/raw-iphone.png assets/screenshot-iphone.png
+node scripts/frame-screenshot.mjs path/to/raw-ipad.png assets/screenshot-ipad.png --device ipad
 ```
 
 ---
