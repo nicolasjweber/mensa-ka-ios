@@ -109,30 +109,22 @@ public struct MealCardView: View {
                 Spacer(minLength: 0)
 
                 NavigationLink(value: route) {
-                    HStack(alignment: .center, spacing: Spacing.sm) {
-                        MealTypeBadge(mealType: meal.mealType, language: lang)
-
-                        HStack(spacing: 4) {
-                            if rating.hasRatings {
-                                Image(systemName: "star.fill")
-                                    .font(.system(size: 12))
-                                    .foregroundStyle(ThemePalette.starColor)
-                            }
-                            Text(rating.label)
-                                .font(.system(size: 12, weight: .semibold))
-                                .foregroundStyle(ThemePalette.muted)
-                                .lineLimit(1)
+                    ViewThatFits(in: .horizontal) {
+                        HStack(alignment: .center, spacing: Spacing.sm) {
+                            MealTypeBadge(mealType: meal.mealType, language: lang)
+                            ratingView(rating)
+                            Spacer(minLength: 4)
+                            priceChip(selectedPrice: selectedPrice, language: lang)
                         }
 
-                        Spacer(minLength: 4)
-
-                        Text(FormatUtils.formatEuroPrice(selectedPrice, language: lang))
-                            .font(.system(size: 13, weight: .heavy))
-                            .monospacedDigit()
-                            .foregroundStyle(ThemePalette.brandDeep)
-                            .padding(.horizontal, 10)
-                            .padding(.vertical, 4)
-                            .background(RoundedRectangle(cornerRadius: Radii.sm, style: .continuous).fill(ThemePalette.brandSoft))
+                        HStack(alignment: .center, spacing: Spacing.sm) {
+                            VStack(alignment: .leading, spacing: 4) {
+                                MealTypeBadge(mealType: meal.mealType, language: lang)
+                                ratingView(rating)
+                            }
+                            Spacer(minLength: 4)
+                            priceChip(selectedPrice: selectedPrice, language: lang)
+                        }
                     }
                 }
                 .buttonStyle(.plain)
@@ -149,5 +141,31 @@ public struct MealCardView: View {
         )
         .shadow(color: .black.opacity(0.04), radius: 8, y: 2)
         .optionalMatchedTransitionSource(id: cardSourceID, in: navZoomNamespace)
+    }
+
+    private func ratingView(_ rating: (hasRatings: Bool, label: String, clampedAverage: Double)) -> some View {
+        HStack(spacing: 4) {
+            if rating.hasRatings {
+                Image(systemName: "star.fill")
+                    .font(.system(size: 12))
+                    .foregroundStyle(ThemePalette.starColor)
+            }
+            Text(rating.label)
+                .font(.system(size: 12, weight: .semibold))
+                .foregroundStyle(ThemePalette.muted)
+                .lineLimit(1)
+        }
+        .fixedSize(horizontal: true, vertical: false)
+    }
+
+    private func priceChip(selectedPrice: Int, language: AppLanguage) -> some View {
+        Text(FormatUtils.formatEuroPrice(selectedPrice, language: language))
+            .font(.system(size: 13, weight: .heavy))
+            .monospacedDigit()
+            .foregroundStyle(ThemePalette.brandDeep)
+            .padding(.horizontal, 10)
+            .padding(.vertical, 4)
+            .background(RoundedRectangle(cornerRadius: Radii.sm, style: .continuous).fill(ThemePalette.brandSoft))
+            .fixedSize(horizontal: true, vertical: false)
     }
 }

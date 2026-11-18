@@ -74,6 +74,7 @@ public enum ThemePalette {
     public static let veganFg = Color.dynamic(lightHex: 0x0D5C33, darkHex: 0x7DE5AA)
     public static let vegBg = Color.dynamic(lightHex: 0xE5F5D9, darkHex: 0x1C3610)
     public static let vegFg = Color.dynamic(lightHex: 0x2B5911, darkHex: 0xA4E374)
+    public static let vegInk = Color.dynamic(lightHex: 0xFFFFFF, darkHex: 0x132607)
     public static let fishBg = Color.dynamic(lightHex: 0xDFEFF9, darkHex: 0x113047)
     public static let fishFg = Color.dynamic(lightHex: 0x0D4B73, darkHex: 0x7EC7F5)
     public static let meatBg = Color.dynamic(lightHex: 0xFBEAD9, darkHex: 0x3F210D)

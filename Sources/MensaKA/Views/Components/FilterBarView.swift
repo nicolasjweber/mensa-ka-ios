@@ -34,9 +34,14 @@ public struct FilterBarView: View {
                 ForEach(FilterKey.allCases) { key in
                     let active = store.activeFilters.isActive(key)
                     let label = s.filterLabel(key)
-                    let isFavoriteFilter = key == .favoritesOnly
-                    let accent = isFavoriteFilter ? ThemePalette.favorite : ThemePalette.brand
-                    let activeInk = isFavoriteFilter ? ThemePalette.favoriteInk : ThemePalette.brandInk
+                    let (accent, activeInk): (Color, Color) = switch key {
+                    case .vegan:
+                        (ThemePalette.brand, ThemePalette.brandInk)
+                    case .vegetarian:
+                        (ThemePalette.vegFg, ThemePalette.vegInk)
+                    case .favoritesOnly:
+                        (ThemePalette.favorite, ThemePalette.favoriteInk)
+                    }
 
                     Button {
                         withAnimation(.spring(duration: 0.3, bounce: 0.25)) {

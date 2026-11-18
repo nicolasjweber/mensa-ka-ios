@@ -23,6 +23,7 @@ public struct MealTypeBadge: View {
             .padding(.horizontal, Spacing.sm)
             .padding(.vertical, 4)
             .background(Capsule().fill(colors.bg))
+            .fixedSize(horizontal: true, vertical: false)
         }
     }
 }
