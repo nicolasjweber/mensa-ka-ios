@@ -133,38 +133,12 @@ public struct MenuView: View {
         )
         .navigationTitle(isPad ? "" : screenTitle)
         .navigationBarTitleDisplayMode(isPad ? .inline : .large)
-        .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                Menu {
-                    canteenPickerButtons()
-                } label: {
-                    Image(systemName: "building.2")
-                }
-                .disabled(store.canteens.isEmpty)
-                .accessibilityLabel(s.selectCanteen)
-            }
-        }
         .applyIf(isPad) { view in
             view.searchable(
                 text: $searchQuery,
                 placement: .navigationBarDrawer(displayMode: .always),
                 prompt: s.searchPlaceholder
             )
-        }
-    }
-
-    @ViewBuilder
-    private func canteenPickerButtons() -> some View {
-        ForEach(store.canteens) { canteen in
-            Button {
-                store.setSelectedCanteenId(canteen.id)
-            } label: {
-                if canteen.id == store.resolvedCanteenId {
-                    Label(canteen.name, systemImage: "checkmark")
-                } else {
-                    Text(canteen.name)
-                }
-            }
         }
     }
 
